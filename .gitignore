@@ -1,3 +1,8 @@
+# Eclipse IDE
+.project
+.classpath
+.settings/
+
 # Next.js & Node Build Artifacts
 node_modules/
 .next/
