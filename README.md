@@ -1,100 +1,82 @@
-# 📚 Library Management System (LMS)
+# 📚 Library Management System (LMS) - Next.js & Supabase
 
-A robust, full-featured **Library Management System** built with **Java (Servlets & JSP)**, **MySQL**, and **Apache Tomcat**, designed with a modern, glassmorphic UI and Role-Based Access Control (RBAC).
+A modern, glassmorphic **Library Management System** built with **Next.js 15 (App Router, React 19, TypeScript)**, **Tailwind CSS**, and **Supabase (PostgreSQL, Auth, RLS)**.
 
 ---
 
-## 🌟 Key Features
+## 🌟 Modules Implemented (Core Modules 1 – 6)
 
-### 👥 Multi-Role Authentication & Access Control (RBAC)
-- **Role-tailored interfaces** for 5 user types:
-  - **Admin**: Full administrative privileges, user management, and catalog control.
-  - **Librarian**: Complete catalog management, issue/return circulation desk, member directory, and loan audit logs.
-  - **Faculty**: Search books, view personal borrowing records, track return deadlines, elevated loan quotas.
-  - **Student**: Search & discover books, check availability, view active loans & personal borrowing history.
-  - **Coordinator**: Catalog search, department-level resource coordination, loan status overview.
-- **Session Security**: Centralized `AuthFilter` ensuring protected endpoints and automated redirect for unauthenticated sessions.
+1. **Module 1: User Authentication & Role-Based Access Control (RBAC)**
+   - 5 Supported Roles: **Admin**, **Librarian**, **Faculty**, **Student**, **Coordinator**.
+   - Built-in **1-Click Role Switcher** in the sidebar for rapid multi-role preview and testing.
+   - Dynamic permissions: role-gated navigation, catalog edit controls, and circulation desks.
 
-### 📖 Book Catalog & Inventory Management
-- Full CRUD operations for books (ISBN, Title, Author, Category, Publisher, Edition, Shelf Location).
-- Live Multi-criteria Search & Filtering (by keyword, category, author, status, and availability).
-- Real-time stock and copy tracking (total copies vs. available copies).
+2. **Module 2: Book Catalog & Inventory Management**
+   - Full CRUD operations: Add new book, Edit metadata, Delete entries.
+   - Comprehensive metadata: Title, Author, ISBN, Category, Publisher, Edition, Shelf Location, Cover Preview, Total Copies, and Available Copies.
 
-### 🔄 Issue, Return & Renewal (Circulation Desk)
-- **Book Issue**: Validates member borrowing quotas and real-time book copy availability before issuance.
-- **Book Return**: Instantly updates inventory copies upon return and stamps completion timestamps.
-- **Book Renewal**: Allows renewals with configurable renewal limits and updated due date calculation.
-- **Circulation History & Audit Trail**: Comprehensive tracking of all active, returned, and overdue borrowings.
+3. **Module 3: Student & Faculty Member Management**
+   - Centralized Member Directory with live search and role filters.
+   - User registration and role assignment.
+   - Configurable borrowing quotas (e.g., Student: 3 books max, Faculty: 5 books max, Admin/Librarian: unlimited).
+
+4. **Module 4: Book Search & Catalog Live Discovery**
+   - Instant live search by Title, Author, ISBN, or Keyword.
+   - Faceted category filter pills (Computer Science, Artificial Intelligence, Database Systems, Networking, etc.).
+   - Real-time In-Stock / Checked Out availability gauges.
+
+5. **Module 5: Book Issue Management (Circulation Desk)**
+   - 1-Click checkout desk validating real-time copy availability and user quota limits.
+   - Automated due date calculation based on member role (14 days for students, 30 days for faculty).
+
+6. **Module 6: Book Return & Loan Renewal**
+   - 1-Click Return processing that immediately restores inventory copy counts.
+   - Loan renewals with max renewal counter validation (up to 2 extensions).
+   - Real-time overdue detection and badge indicators.
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Backend**: Java 24 / Java EE (Jakarta/Javax Servlets, JSP, JSTL)
-- **Database**: MySQL 8.0+ (via JDBC Connector/J)
-- **Application Server**: Apache Tomcat 9.0+
-- **Frontend**: JSP, HTML5, Vanilla CSS3 (Custom Design System with Glassmorphism, CSS Variables & Micro-animations)
-- **IDE**: Eclipse IDE for Enterprise Java and Web Developers
+- **Framework**: Next.js 15 (App Router) with React 19 & TypeScript
+- **Database & Auth**: Supabase PostgreSQL + Row Level Security (RLS)
+- **Styling**: Tailwind CSS with custom Glassmorphism design tokens & micro-animations
+- **Icons**: Lucide React
 
 ---
 
-## 🚀 Getting Started & Setup Guide
+## 🚀 Getting Started
 
 ### 1. Prerequisites
-- **Java Development Kit (JDK)**: JDK 17, 21, or 24 installed.
-- **Apache Tomcat**: Version 9.0.x configured in Eclipse or standalone.
-- **MySQL Server**: MySQL 8.x running on `localhost:3306`.
-- **Eclipse IDE**: Eclipse IDE for Enterprise Java and Web Developers.
+- **Node.js**: v18+ or v20+ / v24+
+- **npm** or **pnpm** / **yarn**
+
+### 2. Installation
+```bash
+npm install
+```
+
+### 3. Running Locally
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+*Note*: The application features a built-in reactive storage layer with pre-seeded books, members, and active loans, allowing it to work **100% offline out-of-the-box** without any mandatory setup!
 
 ---
 
-### 2. Database Setup
-1. Open your MySQL client (MySQL Workbench, phpMyAdmin, or MySQL CLI).
-2. Execute the schema script located at:
+## 🗄️ Supabase PostgreSQL Setup (Optional for Live Supabase Deployment)
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. Go to the **SQL Editor** in your Supabase dashboard.
+3. Run the schema script from [`supabase/schema.sql`](file:///supabase/schema.sql) to create tables and RLS policies.
+4. Run the seed script from [`supabase/seed.sql`](file:///supabase/seed.sql) to populate sample books and user profiles.
+5. Create `.env.local` based on [`.env.local.example`](file:///..env.local.example):
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
    ```
-   src/main/webapp/WEB-INF/database/schema.sql
-   ```
-3. This creates the database `lms_db`, required tables (`users`, `books`, `borrow_records`), and seeds initial sample books & accounts.
-
----
-
-### 3. Database Configuration
-Database connection settings are located in [DBConnection.java](file:///src/main/java/com/lms/dao/DBConnection.java).
-- Default URL: `jdbc:mysql://localhost:3306/lms_db`
-- Default Username: `root`
-- Default Password: `""` (empty) / auto-fallback to common configurations.
-
-*Optional*: You can also create a `db.properties` file in `src/main/resources` or specify environment variables (`LMS_DB_USER`, `LMS_DB_PASSWORD`).
-
----
-
-### 4. Running the Project in Eclipse
-1. **Clone the repository**:
-   ```bash
-   git clone <your-repository-url>
-   ```
-2. **Open Eclipse**:
-   - Go to `File` ➔ `Import...` ➔ `General` ➔ `Existing Projects into Workspace`.
-   - Select the `LMS` folder and click **Finish**.
-3. **Configure Apache Tomcat**:
-   - Right-click the project ➔ `Run As` ➔ `Run on Server`.
-   - Select Apache Tomcat v9.0 and finish.
-4. **Access the Application**:
-   - Open your browser and navigate to: `http://localhost:8080/LMS/`
-
----
-
-## 🔑 Default Test Accounts
-
-Use these pre-seeded accounts from `schema.sql` to test different roles:
-
-| Role | Email | Password | Allowed Books |
-|---|---|---|---|
-| **Admin** | `admin@lms.com` | `Admin@123` | Unlimited |
-| **Librarian** | `librarian@lms.com` | `Lib@123` | Unlimited |
-| **Faculty** | `faculty@lms.com` | `Faculty@123` | 5 Books |
-| **Student** | `student@lms.com` | `Student@123` | 3 Books |
-| **Coordinator** | `coordinator@lms.com` | `Coord@123` | 5 Books |
 
 ---
 
@@ -103,32 +85,28 @@ Use these pre-seeded accounts from `schema.sql` to test different roles:
 ```
 LMS/
 ├── src/
-│   └── main/
-│       ├── java/com/lms/
-│       │   ├── dao/           # DBConnection, UserDAO, BookDAO, BorrowDAO
-│       │   ├── filter/        # AuthFilter (Session & Route protection)
-│       │   ├── model/         # User, Book, BorrowRecord entity models
-│       │   └── servlet/       # AuthServlet, BookServlet, UserServlet, BorrowServlet, DashboardServlet
-│       └── webapp/
-│           ├── assets/css/    # Modern Glassmorphic CSS Design System
-│           ├── books/         # Book catalog and management views
-│           ├── circulation/   # Issue, return, and history JSP pages
-│           ├── users/         # Member directory and profile views
-│           ├── WEB-INF/
-│           │   ├── database/  # schema.sql (DDL & seed data)
-│           │   ├── includes/  # header.jsp, footer.jsp, navbar components
-│           │   ├── lib/       # mysql-connector-j-9.7.0.jar
-│           │   └── web.xml    # Servlet mappings and configurations
-│           ├── dashboard.jsp  # Role-specific real-time metric dashboard
-│           ├── login.jsp      # Login interface
-│           └── index.jsp      # Landing page / redirection
+│   ├── app/
+│   │   ├── (dashboard)/
+│   │   ├── books/             # Module 2 & 4: Book Catalog & Live Search
+│   │   ├── circulation/       # Module 5 & 6: Circulation Desk (Issue, Return & Renew)
+│   │   ├── dashboard/         # Module 1: Dynamic Role Overview
+│   │   ├── members/           # Module 3: Member Directory
+│   │   ├── globals.css        # Tailwind & Glassmorphism design system
+│   │   ├── layout.tsx         # Root layout with AuthProvider
+│   │   └── page.tsx           # Entry redirect
+│   ├── components/
+│   │   └── layout/            # Sidebar, Header, AppShell
+│   ├── context/
+│   │   └── AuthContext.tsx    # Role Switcher & RBAC Permissions
+│   └── lib/
+│       ├── data-store.ts      # Reactive local store with pre-seeded data
+│       ├── types.ts           # TypeScript interfaces for all entities
+│       └── utils.ts           # Date and class helper functions
+├── supabase/
+│   ├── schema.sql             # PostgreSQL tables & RLS
+│   └── seed.sql               # Pre-seeded users, books & borrowings
 ├── .gitignore
-├── .classpath
-├── .project
-└── README.md
+├── package.json
+├── tailwind.config.ts
+└── tsconfig.json
 ```
-
----
-
-## 📜 License
-This project is open-source and available under the [MIT License](LICENSE).

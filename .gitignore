@@ -1,42 +1,26 @@
-# Compiled Class Files
-*.class
-src/main/webapp/WEB-INF/classes/
-build/
-bin/
-target/
+# Next.js & Node Build Artifacts
+node_modules/
+.next/
 out/
+build/
+dist/
 
-# Log files
-*.log
-hs_err_pid*
-replay_pid*
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Eclipse Specific
-.metadata/
-.recommenders/
-tmp/
-*.tmp
-*.bak
-*.swp
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# OS Files
+# Editor / OS
 .DS_Store
-Thumbs.db
-ehthumbs.db
-
-# IntelliJ IDEA / VS Code
+*.pem
 .idea/
-*.iml
-*.iws
-*.ipr
 .vscode/
-
-# Archive files (ignoring all zip/tar archives, but keeping webapp lib jars)
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# Allow JDBC and dependent jars in WEB-INF/lib
-!src/main/webapp/WEB-INF/lib/*.jar
+Thumbs.db
