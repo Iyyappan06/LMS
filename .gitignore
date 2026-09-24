@@ -1,0 +1,42 @@
+# Compiled Class Files
+*.class
+src/main/webapp/WEB-INF/classes/
+build/
+bin/
+target/
+out/
+
+# Log files
+*.log
+hs_err_pid*
+replay_pid*
+
+# Eclipse Specific
+.metadata/
+.recommenders/
+tmp/
+*.tmp
+*.bak
+*.swp
+
+# OS Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IntelliJ IDEA / VS Code
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# Archive files (ignoring all zip/tar archives, but keeping webapp lib jars)
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Allow JDBC and dependent jars in WEB-INF/lib
+!src/main/webapp/WEB-INF/lib/*.jar
