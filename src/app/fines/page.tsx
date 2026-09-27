@@ -72,17 +72,17 @@ export default function FineOverduesPage() {
       {/* 4 Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
-          <p className="text-3xl font-extrabold text-rose-600">${totalUnpaid.toFixed(2)}</p>
+          <p className="text-3xl font-extrabold text-rose-600">₹{totalUnpaid.toFixed(2)}</p>
           <p className="text-xs text-slate-500 font-semibold mt-1">Unpaid Balance</p>
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
-          <p className="text-3xl font-extrabold text-emerald-600">${totalCollected.toFixed(2)}</p>
+          <p className="text-3xl font-extrabold text-emerald-600">₹{totalCollected.toFixed(2)}</p>
           <p className="text-xs text-slate-500 font-semibold mt-1">Total Revenue Collected</p>
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
-          <p className="text-3xl font-extrabold text-blue-600">${totalWaived.toFixed(2)}</p>
+          <p className="text-3xl font-extrabold text-blue-600">₹{totalWaived.toFixed(2)}</p>
           <p className="text-xs text-slate-500 font-semibold mt-1">Total Waived Fines</p>
         </div>
 
@@ -150,7 +150,7 @@ export default function FineOverduesPage() {
                       </div>
                     </td>
                     <td className="p-3 font-extrabold text-slate-900 text-sm">
-                      ${fine.amount.toFixed(2)}
+                      ₹{fine.amount.toFixed(2)}
                     </td>
                     <td className="p-3">
                       <span
@@ -199,7 +199,7 @@ export default function FineOverduesPage() {
             <div className="p-3 bg-slate-50 rounded border border-slate-200 text-xs space-y-1">
               <p><strong className="text-slate-700">Member:</strong> {selectedFine.user_name}</p>
               <p><strong className="text-slate-700">Book:</strong> {selectedFine.book_title}</p>
-              <p><strong className="text-slate-700">Fine Amount:</strong> ${selectedFine.amount.toFixed(2)}</p>
+              <p><strong className="text-slate-700">Fine Amount:</strong> ₹{selectedFine.amount.toFixed(2)}</p>
             </div>
 
             <div className="space-y-1 text-xs">

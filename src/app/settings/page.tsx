@@ -115,7 +115,7 @@ export default function SystemSettingsPage() {
 
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">
-                  Overdue Fine Rate ($/Day)
+                  Overdue Fine Rate (₹/Day)
                 </label>
                 <input
                   type="number"

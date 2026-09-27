@@ -142,7 +142,7 @@ export default function FacultyRequestsPage() {
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
-          <p className="text-3xl font-extrabold text-blue-600">${totalCostApproved.toFixed(2)}</p>
+          <p className="text-3xl font-extrabold text-blue-600">₹{totalCostApproved.toFixed(2)}</p>
           <p className="text-xs text-slate-500 font-semibold mt-1">Approved Budget</p>
         </div>
       </div>
@@ -221,7 +221,7 @@ export default function FacultyRequestsPage() {
                         {req.priority}
                       </span>
                       <div className="text-xs font-bold text-blue-600 mt-1">
-                        ${req.estimated_cost.toFixed(2)}
+                        ₹{req.estimated_cost.toFixed(2)}
                       </div>
                     </td>
                     <td className="p-3">
@@ -334,7 +334,7 @@ export default function FacultyRequestsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Est. Cost ($)</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Est. Cost (₹)</label>
                   <input
                     type="number"
                     step="0.01"
