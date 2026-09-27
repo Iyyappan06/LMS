@@ -4,7 +4,138 @@ import {
   BorrowRecord,
   SystemConfig,
   UserRole,
+  BookRequest,
+  CourseReading,
+  FineRecord,
+  InventoryAudit,
 } from "./types";
+
+export const INITIAL_REQUESTS: BookRequest[] = [
+  {
+    id: "req-001",
+    faculty_id: "33333333-3333-3333-3333-333333333333",
+    faculty_name: "Prof. Robert Thorne",
+    faculty_email: "faculty@lms.com",
+    title: "Designing Data-Intensive Applications",
+    author: "Martin Kleppmann",
+    publisher: "O'Reilly Media",
+    isbn: "978-1449373320",
+    reason: "Required reference textbook for CS401 Distributed Systems course.",
+    department: "Computer Science & Engineering",
+    estimated_cost: 45.0,
+    priority: "HIGH",
+    status: "PENDING",
+    requested_at: "2026-02-15T10:30:00Z",
+  },
+  {
+    id: "req-002",
+    faculty_id: "33333333-3333-3333-3333-333333333333",
+    faculty_name: "Prof. Robert Thorne",
+    faculty_email: "faculty@lms.com",
+    title: "Quantum Computing: An Applied Approach",
+    author: "Jack D. Hidary",
+    publisher: "Springer",
+    isbn: "978-3030239213",
+    reason: "Advanced electives research for final year CSE students.",
+    department: "Computer Science & Engineering",
+    estimated_cost: 65.0,
+    priority: "MEDIUM",
+    status: "APPROVED",
+    admin_notes: "Approved under Q1 Department Research Budget.",
+    requested_at: "2026-01-20T14:15:00Z",
+  },
+];
+
+export const INITIAL_READINGS: CourseReading[] = [
+  {
+    id: "cr-101",
+    course_code: "CS302",
+    course_name: "Database Management Systems",
+    department: "Computer Science & Engineering",
+    coordinator_name: "Dr. Maya Patel",
+    book_title: "Database System Concepts (7th Edition)",
+    author: "Abraham Silberschatz",
+    isbn: "978-0078022159",
+    required_copies: 15,
+    is_mandatory: true,
+    semester: "Spring 2026",
+    academic_year: "2025-2026",
+    status: "AVAILABLE",
+    created_at: "2026-01-05T09:00:00Z",
+  },
+  {
+    id: "cr-102",
+    course_code: "EE201",
+    course_name: "Digital Circuits & Systems",
+    department: "Electrical Engineering",
+    coordinator_name: "Dr. Maya Patel",
+    book_title: "Digital Design: With an Introduction to the Verilog HDL",
+    author: "M. Morris Mano",
+    isbn: "978-0132774208",
+    required_copies: 10,
+    is_mandatory: true,
+    semester: "Spring 2026",
+    academic_year: "2025-2026",
+    status: "APPROVED",
+    created_at: "2026-01-12T11:00:00Z",
+  },
+];
+
+export const INITIAL_FINES: FineRecord[] = [
+  {
+    id: "fn-501",
+    borrow_id: "b-003",
+    user_id: "44444444-4444-4444-4444-444444444444",
+    user_name: "Alex Rivera",
+    user_email: "student@lms.com",
+    book_title: "Design Patterns: Elements of Reusable Object-Oriented Software",
+    amount: 14.5,
+    reason: "Late return (29 days overdue)",
+    days_overdue: 29,
+    payment_status: "UNPAID",
+    issued_at: "2026-02-01T10:00:00Z",
+  },
+  {
+    id: "fn-502",
+    borrow_id: "b-004",
+    user_id: "66666666-6666-6666-6666-666666666666",
+    user_name: "Emma Watson",
+    user_email: "emma.watson@student.lms.com",
+    book_title: "Introduction to Algorithms (4th Edition)",
+    amount: 5.0,
+    reason: "Late return (10 days overdue)",
+    days_overdue: 10,
+    payment_status: "PAID",
+    issued_at: "2026-01-15T16:20:00Z",
+    paid_at: "2026-01-16T11:00:00Z",
+    payment_method: "Credit Card",
+  },
+];
+
+export const INITIAL_AUDITS: InventoryAudit[] = [
+  {
+    id: "aud-001",
+    book_id: "b1010101-0001-0000-0000-000000000001",
+    book_title: "Clean Code: A Handbook of Agile Software Craftsmanship",
+    isbn: "978-0132350884",
+    condition_status: "DAMAGED",
+    notes: "Spine torn on Copy #3. Sent for rebinding.",
+    copies_affected: 1,
+    audited_by: "Sarah Jenkins (Librarian)",
+    audited_at: "2026-02-10T14:00:00Z",
+  },
+  {
+    id: "aud-002",
+    book_id: "b1010101-0004-0000-0000-000000000004",
+    book_title: "Design Patterns: Elements of Reusable Object-Oriented Software",
+    isbn: "978-0201633610",
+    condition_status: "LOST",
+    notes: "Reported missing during annual shelf audit CS-A-105.",
+    copies_affected: 1,
+    audited_by: "Dr. Eleanor Vance (Admin)",
+    audited_at: "2026-01-28T11:30:00Z",
+  },
+];
 
 // Default Initial Profiles (Module 1 & 3)
 export const INITIAL_PROFILES: UserProfile[] = [
@@ -255,8 +386,10 @@ export const INITIAL_CONFIG: SystemConfig = {
   student_loan_days: 14,
   faculty_loan_days: 30,
   max_renewals_allowed: 2,
+  fine_per_day: 0.5,
   library_name: "Apex University Central Library",
   contact_email: "library-support@apex.edu",
+  operating_hours: "Mon - Fri: 8:00 AM - 10:00 PM | Sat - Sun: 10:00 AM - 6:00 PM",
 };
 
 const STORAGE_KEYS = {
@@ -265,6 +398,10 @@ const STORAGE_KEYS = {
   BOOKS: "lms_books",
   BORROWS: "lms_borrows",
   CONFIG: "lms_config",
+  REQUESTS: "lms_requests",
+  READINGS: "lms_readings",
+  FINES: "lms_fines",
+  AUDITS: "lms_audits",
 };
 
 export class DataStore {
@@ -524,6 +661,89 @@ export class DataStore {
 
   static getConfig(): SystemConfig {
     return this.get<SystemConfig>(STORAGE_KEYS.CONFIG, INITIAL_CONFIG);
+  }
+
+  static saveConfig(config: SystemConfig): void {
+    this.set(STORAGE_KEYS.CONFIG, config);
+  }
+
+  // Module 8: Requests
+  static getRequests(): BookRequest[] {
+    return this.get<BookRequest[]>(STORAGE_KEYS.REQUESTS, INITIAL_REQUESTS);
+  }
+
+  static saveRequest(req: Omit<BookRequest, "id" | "requested_at" | "status">): BookRequest {
+    const list = this.getRequests();
+    const newReq: BookRequest = {
+      ...req,
+      id: "req-" + Math.random().toString(36).substring(2, 9),
+      status: "PENDING",
+      requested_at: new Date().toISOString(),
+    };
+    list.unshift(newReq);
+    this.set(STORAGE_KEYS.REQUESTS, list);
+    return newReq;
+  }
+
+  static updateRequestStatus(id: string, status: BookRequest["status"], adminNotes?: string): void {
+    const list = this.getRequests();
+    const idx = list.findIndex((r) => r.id === id);
+    if (idx !== -1) {
+      list[idx].status = status;
+      if (adminNotes !== undefined) list[idx].admin_notes = adminNotes;
+      this.set(STORAGE_KEYS.REQUESTS, list);
+    }
+  }
+
+  // Module 9: Course Readings
+  static getReadings(): CourseReading[] {
+    return this.get<CourseReading[]>(STORAGE_KEYS.READINGS, INITIAL_READINGS);
+  }
+
+  static saveReading(reading: Omit<CourseReading, "id" | "created_at">): CourseReading {
+    const list = this.getReadings();
+    const newReading: CourseReading = {
+      ...reading,
+      id: "cr-" + Math.random().toString(36).substring(2, 9),
+      created_at: new Date().toISOString(),
+    };
+    list.unshift(newReading);
+    this.set(STORAGE_KEYS.READINGS, list);
+    return newReading;
+  }
+
+  // Module 11: Fines
+  static getFines(): FineRecord[] {
+    return this.get<FineRecord[]>(STORAGE_KEYS.FINES, INITIAL_FINES);
+  }
+
+  static settleFine(id: string, action: "PAID" | "WAIVED", paymentMethod?: string, waivedBy?: string): void {
+    const list = this.getFines();
+    const idx = list.findIndex((f) => f.id === id);
+    if (idx !== -1) {
+      list[idx].payment_status = action;
+      list[idx].paid_at = new Date().toISOString();
+      if (paymentMethod) list[idx].payment_method = paymentMethod;
+      if (waivedBy) list[idx].waived_by = waivedBy;
+      this.set(STORAGE_KEYS.FINES, list);
+    }
+  }
+
+  // Module 13: Inventory Audits
+  static getAudits(): InventoryAudit[] {
+    return this.get<InventoryAudit[]>(STORAGE_KEYS.AUDITS, INITIAL_AUDITS);
+  }
+
+  static saveAudit(audit: Omit<InventoryAudit, "id" | "audited_at">): InventoryAudit {
+    const list = this.getAudits();
+    const newAudit: InventoryAudit = {
+      ...audit,
+      id: "aud-" + Math.random().toString(36).substring(2, 9),
+      audited_at: new Date().toISOString(),
+    };
+    list.unshift(newAudit);
+    this.set(STORAGE_KEYS.AUDITS, list);
+    return newAudit;
   }
 
   static resetAllData(): void {

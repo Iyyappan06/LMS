@@ -54,6 +54,80 @@ export interface SystemConfig {
   student_loan_days: number;
   faculty_loan_days: number;
   max_renewals_allowed: number;
+  fine_per_day: number;
   library_name: string;
   contact_email: string;
+  operating_hours?: string;
 }
+
+export type BookRequestStatus = 'PENDING' | 'APPROVED' | 'ORDERED' | 'REJECTED';
+export type BookRequestPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+
+export interface BookRequest {
+  id: string;
+  faculty_id: string;
+  faculty_name: string;
+  faculty_email: string;
+  title: string;
+  author: string;
+  publisher?: string;
+  isbn?: string;
+  reason: string;
+  department: string;
+  estimated_cost: number;
+  priority: BookRequestPriority;
+  status: BookRequestStatus;
+  admin_notes?: string;
+  requested_at: string;
+}
+
+export interface CourseReading {
+  id: string;
+  course_code: string;
+  course_name: string;
+  department: string;
+  coordinator_name: string;
+  book_title: string;
+  author: string;
+  isbn?: string;
+  required_copies: number;
+  is_mandatory: boolean;
+  semester: string;
+  academic_year: string;
+  status: 'PROPOSED' | 'APPROVED' | 'AVAILABLE';
+  created_at: string;
+}
+
+export type PaymentStatus = 'UNPAID' | 'PAID' | 'WAIVED';
+
+export interface FineRecord {
+  id: string;
+  borrow_id: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  book_title: string;
+  amount: number;
+  reason: string;
+  days_overdue: number;
+  payment_status: PaymentStatus;
+  issued_at: string;
+  paid_at?: string | null;
+  payment_method?: string;
+  waived_by?: string;
+}
+
+export type ConditionStatus = 'GOOD' | 'DAMAGED' | 'LOST' | 'WEEDING';
+
+export interface InventoryAudit {
+  id: string;
+  book_id: string;
+  book_title: string;
+  isbn: string;
+  condition_status: ConditionStatus;
+  notes: string;
+  copies_affected: number;
+  audited_by: string;
+  audited_at: string;
+}
+

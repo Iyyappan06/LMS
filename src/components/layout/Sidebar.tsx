@@ -13,6 +13,12 @@ import {
   Menu,
   X,
   Sparkles,
+  FilePlus,
+  GraduationCap,
+  DollarSign,
+  BarChart3,
+  ClipboardCheck,
+  Settings,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -23,8 +29,11 @@ export function Sidebar() {
     canManageBooks,
     canIssueReturn,
     canManageMembers,
+    isAdmin,
+    isLibrarian,
     isFaculty,
     isStudent,
+    isCoordinator,
   } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -52,6 +61,42 @@ export function Sidebar() {
       href: "/members",
       icon: Users,
       show: canManageMembers,
+    },
+    {
+      label: "Acquisition Requests",
+      href: "/requests",
+      icon: FilePlus,
+      show: isFaculty || isLibrarian || isAdmin,
+    },
+    {
+      label: "Department Resources",
+      href: "/department",
+      icon: GraduationCap,
+      show: isCoordinator || isAdmin || isLibrarian || isFaculty,
+    },
+    {
+      label: "Fine & Overdues",
+      href: "/fines",
+      icon: DollarSign,
+      show: true,
+    },
+    {
+      label: "Reports & Analytics",
+      href: "/reports",
+      icon: BarChart3,
+      show: isAdmin || isLibrarian || isCoordinator,
+    },
+    {
+      label: "Inventory & Audits",
+      href: "/inventory",
+      icon: ClipboardCheck,
+      show: isAdmin || isLibrarian,
+    },
+    {
+      label: "System Settings",
+      href: "/settings",
+      icon: Settings,
+      show: isAdmin || isLibrarian,
     },
   ];
 
