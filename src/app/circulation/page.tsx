@@ -1,433 +1,284 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { AppShell } from "@/components/layout/AppShell";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { DataStore } from "@/lib/data-store";
 import { Book, BorrowRecord, UserProfile } from "@/lib/types";
-import { formatDate, calculateDaysRemaining } from "@/lib/utils";
 import {
   ArrowRightLeft,
-  Search,
   CheckCircle2,
   Clock,
   RotateCcw,
-  AlertTriangle,
-  Download,
+  Search,
+  Plus,
   BookOpen,
   UserCheck,
-  Calendar,
-  Sparkles,
-  Layers,
 } from "lucide-react";
 
 export default function CirculationPage() {
-  const { currentUser, canIssueReturn, isStudent, isFaculty } = useAuth();
-  const [activeTab, setActiveTab] = useState<"ACTIVE" | "ISSUE" | "HISTORY">("ACTIVE");
+  const { currentUser, isStudent, isFaculty, canIssueReturn } = useAuth();
   const [borrows, setBorrows] = useState<BorrowRecord[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
-  const [profiles, setProfiles] = useState<UserProfile[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [members, setMembers] = useState<UserProfile[]>([]);
 
-  // Quick Issue Form State
-  const [issueBookId, setIssueBookId] = useState("");
-  const [issueUserId, setIssueUserId] = useState("");
-  const [issueRemarks, setIssueRemarks] = useState("");
+  const [issueModalOpen, setIssueModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [selectedBookId, setSelectedBookId] = useState("");
+  const [remarksInput, setRemarksInput] = useState("");
 
   const loadData = () => {
     setBorrows(DataStore.getBorrows());
     setBooks(DataStore.getBooks());
-    setProfiles(DataStore.getProfiles());
+    setMembers(DataStore.getProfiles());
   };
 
   useEffect(() => {
     loadData();
-    const handleChange = () => loadData();
-    window.addEventListener("lms_data_change", handleChange);
-    return () => window.removeEventListener("lms_data_change", handleChange);
+    const handleDataChange = () => loadData();
+    window.addEventListener("lms_data_change", handleDataChange);
+    return () => window.removeEventListener("lms_data_change", handleDataChange);
   }, []);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 4000);
+  // Filter for student/faculty view vs librarian view
+  const userBorrows = isStudent || isFaculty
+    ? borrows.filter((b) => b.user_id === currentUser.id)
+    : borrows;
+
+  const activeBorrowsCount = userBorrows.filter((b) => b.status === "ACTIVE" || b.status === "OVERDUE").length;
+  const availableSlots = Math.max(0, currentUser.max_books_allowed - activeBorrowsCount);
+
+  const handleIssueSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUserId || !selectedBookId) {
+      alert("Please select both a member and a book.");
+      return;
+    }
+
+    const res = DataStore.issueBook(selectedUserId, selectedBookId, remarksInput);
+    alert(res.message);
+    if (res.success) {
+      setIssueModalOpen(false);
+      setSelectedUserId("");
+      setSelectedBookId("");
+      setRemarksInput("");
+      loadData();
+    }
   };
 
   const handleReturn = (borrowId: string) => {
-    const res = DataStore.returnBook(borrowId);
-    if (res.success) {
-      showToast(res.message);
-    } else {
+    if (confirm("Confirm return of this book?")) {
+      const res = DataStore.returnBook(borrowId);
       alert(res.message);
+      loadData();
     }
   };
 
   const handleRenew = (borrowId: string) => {
     const res = DataStore.renewBook(borrowId);
-    if (res.success) {
-      showToast(res.message);
-    } else {
-      alert(res.message);
-    }
+    alert(res.message);
+    loadData();
   };
-
-  const handleIssueSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!issueBookId || !issueUserId) {
-      alert("Please select both a Book and a Member.");
-      return;
-    }
-    const res = DataStore.issueBook(issueUserId, issueBookId, issueRemarks);
-    if (res.success) {
-      showToast(res.message);
-      setIssueBookId("");
-      setIssueUserId("");
-      setIssueRemarks("");
-      setActiveTab("ACTIVE");
-    } else {
-      alert(res.message);
-    }
-  };
-
-  const exportCSV = () => {
-    const headers = ["Loan ID", "Member Name", "Email", "Book Title", "ISBN", "Issue Date", "Due Date", "Return Date", "Renewals", "Status"];
-    const rows = borrows.map((b) => [
-      b.id,
-      `"${b.user?.full_name || ""}"`,
-      b.user?.email || "",
-      `"${b.book?.title || ""}"`,
-      b.book?.isbn || "",
-      b.issue_date,
-      b.due_date,
-      b.return_date || "—",
-      b.renewal_count,
-      b.status,
-    ]);
-
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `lms_circulation_audit_${new Date().toISOString().split("T")[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Filtered lists
-  const filteredBorrows = borrows.filter((b) => {
-    const matchesQuery =
-      (b.book?.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (b.user?.full_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (b.book?.isbn || "").toLowerCase().includes(searchQuery.toLowerCase());
-
-    if (isStudent || isFaculty) {
-      return matchesQuery && b.user_id === currentUser.id;
-    }
-    return matchesQuery;
-  });
-
-  const activeLoans = filteredBorrows.filter((b) => b.status === "ACTIVE" || b.status === "OVERDUE");
-  const historyLoans = filteredBorrows.filter((b) => b.status === "RETURNED" || activeTab === "HISTORY");
 
   return (
-    <AppShell>
-      <div className="space-y-6">
-        {/* Toast */}
-        {toastMessage && (
-          <div className="fixed top-20 right-6 z-50 px-4 py-3 rounded-2xl bg-indigo-600 text-white font-medium shadow-2xl flex items-center gap-3 border border-indigo-400/40 animate-slide-up">
-            <CheckCircle2 className="w-5 h-5 text-indigo-200" />
-            <span>{toastMessage}</span>
-          </div>
-        )}
+    <div className="space-y-5">
+      {/* Stat Cards Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-slate-900">{activeBorrowsCount} / {currentUser.max_books_allowed}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Active Borrowed Books</p>
+        </div>
 
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
-              <ArrowRightLeft className="w-6 h-6 text-indigo-400" />
-              <span>Circulation & Loan Management</span>
-            </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Issue books, process returns, renew loan terms, and view complete audit history logs.
-            </p>
-          </div>
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-slate-900">{availableSlots}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Available Slots</p>
+        </div>
+
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-slate-900">{userBorrows.length}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Total History Records</p>
+        </div>
+      </div>
+
+      {/* Circulation / History Table Container */}
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <h3 className="text-sm font-bold text-slate-900">Borrowing History</h3>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={exportCSV}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 text-xs font-bold flex items-center gap-1.5 transition-all"
-            >
-              <Download className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Export CSV</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Tabs Bar */}
-        <div className="flex items-center gap-2 border-b border-white/10 pb-2">
-          <button
-            onClick={() => setActiveTab("ACTIVE")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === "ACTIVE"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
-                : "bg-slate-900/60 text-slate-400 hover:text-white"
-            }`}
-          >
-            <Clock className="w-4 h-4" />
-            <span>Active Loans ({activeLoans.length})</span>
-          </button>
-
-          {canIssueReturn && (
-            <button
-              onClick={() => setActiveTab("ISSUE")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                activeTab === "ISSUE"
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
-                  : "bg-slate-900/60 text-slate-400 hover:text-white"
-              }`}
-            >
-              <ArrowRightLeft className="w-4 h-4" />
-              <span>Issue New Loan</span>
-            </button>
-          )}
-
-          <button
-            onClick={() => setActiveTab("HISTORY")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === "HISTORY"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
-                : "bg-slate-900/60 text-slate-400 hover:text-white"
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            <span>Complete Loan History ({borrows.length})</span>
-          </button>
-        </div>
-
-        {/* Tab 1: Active Loans */}
-        {activeTab === "ACTIVE" && (
-          <div className="space-y-4">
-            {/* Search */}
-            <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Filter by book title, borrower name, or ISBN..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              />
-            </div>
-
-            {activeLoans.length === 0 ? (
-              <div className="glass-panel p-10 rounded-2xl text-center border border-white/10">
-                <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
-                <h3 className="text-sm font-bold text-white">No active borrowings found</h3>
-                <p className="text-xs text-slate-400 mt-1">All checked-out books are currently returned or no match exists.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto glass-panel rounded-2xl border border-white/10">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold border-b border-white/10">
-                    <tr>
-                      <th className="p-3.5">Book Title & Author</th>
-                      <th className="p-3.5">Borrower</th>
-                      <th className="p-3.5">Issued Date</th>
-                      <th className="p-3.5">Due Date & Status</th>
-                      <th className="p-3.5">Renewals</th>
-                      <th className="p-3.5 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {activeLoans.map((loan) => {
-                      const { days, isOverdue } = calculateDaysRemaining(loan.due_date);
-                      return (
-                        <tr key={loan.id} className="hover:bg-white/5 transition-colors">
-                          <td className="p-3.5">
-                            <p className="font-bold text-white">{loan.book?.title || "Unknown Book"}</p>
-                            <p className="text-[11px] text-slate-400 font-mono">ISBN: {loan.book?.isbn || "—"}</p>
-                          </td>
-                          <td className="p-3.5">
-                            <p className="font-semibold text-white">{loan.user?.full_name || "Unknown Member"}</p>
-                            <p className="text-[11px] text-indigo-300">{loan.user?.role} • {loan.user?.department}</p>
-                          </td>
-                          <td className="p-3.5 text-slate-400">{formatDate(loan.issue_date)}</td>
-                          <td className="p-3.5">
-                            <p className="font-medium text-white">{formatDate(loan.due_date)}</p>
-                            <span
-                              className={`inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                isOverdue
-                                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                                  : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                              }`}
-                            >
-                              {isOverdue ? `Overdue by ${days}d` : `${days} days left`}
-                            </span>
-                          </td>
-                          <td className="p-3.5">
-                            <span className="text-slate-300 font-mono">{loan.renewal_count} / 2</span>
-                          </td>
-                          <td className="p-3.5 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                onClick={() => handleRenew(loan.id)}
-                                title="Renew loan term"
-                                className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 font-semibold text-[11px] flex items-center gap-1 transition-all"
-                              >
-                                <RotateCcw className="w-3 h-3" />
-                                <span>Renew</span>
-                              </button>
-                              {canIssueReturn && (
-                                <button
-                                  onClick={() => handleReturn(loan.id)}
-                                  className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] flex items-center gap-1 transition-all shadow-md"
-                                >
-                                  <CheckCircle2 className="w-3 h-3" />
-                                  <span>Return Book</span>
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+            {canIssueReturn && (
+              <button
+                onClick={() => setIssueModalOpen(true)}
+                className="px-3.5 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-all"
+              >
+                + Issue Book
+              </button>
             )}
+            <Link
+              href="/books"
+              className="px-3.5 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-all"
+            >
+              Browse Catalog
+            </Link>
           </div>
-        )}
+        </div>
 
-        {/* Tab 2: Issue Book Desk */}
-        {activeTab === "ISSUE" && canIssueReturn && (
-          <div className="glass-panel p-6 rounded-3xl border border-white/10 max-w-2xl mx-auto">
-            <h2 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
-              <ArrowRightLeft className="w-5 h-5 text-indigo-400" />
-              <span>Circulation Desk — Issue Book</span>
-            </h2>
-            <p className="text-xs text-slate-400 mb-6">
-              Validate available copies and member quotas before checkout.
-            </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-200">
+                <th className="p-3">BOOK DETAILS</th>
+                {canIssueReturn && <th className="p-3">MEMBER</th>}
+                <th className="p-3">ISSUE DATE</th>
+                <th className="p-3">DUE DATE</th>
+                <th className="p-3">RETURN DATE</th>
+                <th className="p-3">RENEWALS</th>
+                <th className="p-3">STATUS</th>
+                <th className="p-3 text-right">ACTION</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {userBorrows.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-slate-400">
+                    No borrowing records found.
+                  </td>
+                </tr>
+              ) : (
+                userBorrows.map((b) => (
+                  <tr key={b.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3">
+                      <div className="font-bold text-slate-900 text-xs">{b.book?.title}</div>
+                      <div className="text-[11px] text-slate-500">
+                        Author: {b.book?.author} | ISBN: {b.book?.isbn}
+                      </div>
+                    </td>
+                    {canIssueReturn && (
+                      <td className="p-3">
+                        <div className="font-bold text-slate-900">{b.user?.full_name}</div>
+                        <div className="text-[11px] text-slate-500">{b.user?.role}</div>
+                      </td>
+                    )}
+                    <td className="p-3 text-slate-600 font-mono">{b.issue_date}</td>
+                    <td className="p-3 text-slate-600 font-mono">{b.due_date}</td>
+                    <td className="p-3 text-slate-600 font-mono">{b.return_date || "-"}</td>
+                    <td className="p-3 text-slate-600">{b.renewal_count} / 2</td>
+                    <td className="p-3">
+                      {b.status === "RETURNED" ? (
+                        <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold uppercase">
+                          RETURNED
+                        </span>
+                      ) : b.status === "OVERDUE" ? (
+                        <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold uppercase">
+                          OVERDUE
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold uppercase">
+                          ACTIVE
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3 text-right">
+                      {b.status === "ACTIVE" || b.status === "OVERDUE" ? (
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleRenew(b.id)}
+                            className="px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-100 font-medium text-xs"
+                          >
+                            Renew
+                          </button>
+                          <button
+                            onClick={() => handleReturn(b.id)}
+                            className="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs shadow-sm"
+                          >
+                            Return
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 font-medium">Completed</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-            <form onSubmit={handleIssueSubmit} className="space-y-4 text-xs">
+      {/* Issue Book Modal */}
+      {issueModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-md p-6 rounded-lg border border-slate-200 shadow-xl space-y-4">
+            <h3 className="text-lg font-bold text-slate-900 border-b pb-2">
+              Issue Book to Member
+            </h3>
+
+            <form onSubmit={handleIssueSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-300 font-semibold mb-1.5">Select Book from Catalog *</label>
+                <label className="block font-semibold text-slate-700 mb-1">Select Member *</label>
                 <select
                   required
-                  value={issueBookId}
-                  onChange={(e) => setIssueBookId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-indigo-500"
+                  value={selectedUserId}
+                  onChange={(e) => setSelectedUserId(e.target.value)}
+                  className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600 bg-white"
                 >
-                  <option value="">-- Choose Book (Showing Available Titles) --</option>
-                  {books.map((b) => (
-                    <option key={b.id} value={b.id} disabled={b.available_copies <= 0}>
-                      {b.title} — {b.available_copies > 0 ? `(${b.available_copies} copies available)` : `(Out of Stock)`}
+                  <option value="">-- Select Member --</option>
+                  {members.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.full_name} ({m.role} - {m.email})
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-slate-300 font-semibold mb-1.5">Select Borrower (Student / Faculty) *</label>
+                <label className="block font-semibold text-slate-700 mb-1">Select Book *</label>
                 <select
                   required
-                  value={issueUserId}
-                  onChange={(e) => setIssueUserId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-indigo-500"
+                  value={selectedBookId}
+                  onChange={(e) => setSelectedBookId(e.target.value)}
+                  className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600 bg-white"
                 >
-                  <option value="">-- Choose Member Profile --</option>
-                  {profiles.map((p) => {
-                    const activeCount = borrows.filter((b) => b.user_id === p.id && b.status !== "RETURNED").length;
-                    return (
-                      <option key={p.id} value={p.id}>
-                        {p.full_name} ({p.role} - {p.department}) [Loans: {activeCount}/{p.max_books_allowed}]
-                      </option>
-                    );
-                  })}
+                  <option value="">-- Select Available Book --</option>
+                  {books.filter((b) => b.available_copies > 0).map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.title} ({b.available_copies} available)
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-slate-300 font-semibold mb-1.5">Remarks / Course Reference</label>
+                <label className="block font-semibold text-slate-700 mb-1">Remarks (Optional)</label>
                 <input
                   type="text"
-                  value={issueRemarks}
-                  onChange={(e) => setIssueRemarks(e.target.value)}
-                  placeholder="e.g. Reference text for Semester 5 project"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-indigo-500"
+                  value={remarksInput}
+                  onChange={(e) => setRemarksInput(e.target.value)}
+                  placeholder="Standard checkout"
+                  className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                 />
               </div>
 
-              <div className="pt-4 flex items-center justify-end gap-3">
+              <div className="flex justify-end gap-2 pt-2 border-t">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("ACTIVE")}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold"
+                  onClick={() => setIssueModalOpen(false)}
+                  className="px-3 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-lg shadow-indigo-600/30"
+                  className="px-4 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
                 >
-                  Process Checkout
+                  Issue Loan
                 </button>
               </div>
             </form>
           </div>
-        )}
-
-        {/* Tab 3: Complete Loan History */}
-        {activeTab === "HISTORY" && (
-          <div className="space-y-4">
-            <div className="overflow-x-auto glass-panel rounded-2xl border border-white/10">
-              <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold border-b border-white/10">
-                  <tr>
-                    <th className="p-3.5">Book Details</th>
-                    <th className="p-3.5">Member</th>
-                    <th className="p-3.5">Issued Date</th>
-                    <th className="p-3.5">Due Date</th>
-                    <th className="p-3.5">Returned Date</th>
-                    <th className="p-3.5">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {filteredBorrows.map((loan) => (
-                    <tr key={loan.id} className="hover:bg-white/5 transition-colors">
-                      <td className="p-3.5">
-                        <p className="font-bold text-white">{loan.book?.title || "Unknown Book"}</p>
-                        <p className="text-[11px] text-slate-400 font-mono">ISBN: {loan.book?.isbn || "—"}</p>
-                      </td>
-                      <td className="p-3.5">
-                        <p className="font-semibold text-white">{loan.user?.full_name || "Unknown Member"}</p>
-                        <p className="text-[11px] text-slate-400">{loan.user?.role}</p>
-                      </td>
-                      <td className="p-3.5 text-slate-400">{formatDate(loan.issue_date)}</td>
-                      <td className="p-3.5 text-slate-400">{formatDate(loan.due_date)}</td>
-                      <td className="p-3.5 font-medium text-slate-300">{formatDate(loan.return_date)}</td>
-                      <td className="p-3.5">
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                            loan.status === "RETURNED"
-                              ? "bg-slate-800 text-slate-300 border border-white/10"
-                              : loan.status === "OVERDUE"
-                              ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                              : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                          }`}
-                        >
-                          {loan.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
-    </AppShell>
+        </div>
+      )}
+    </div>
   );
 }
