@@ -3,17 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { DataStore } from "@/lib/data-store";
 import { Book, BorrowRecord, UserProfile } from "@/lib/types";
-import {
-  BarChart3,
-  Download,
-  Printer,
-  PieChart,
-  TrendingUp,
-  BookOpen,
-  Users,
-  ArrowRightLeft,
-  FileSpreadsheet,
-} from "lucide-react";
+import { Download, Printer, BarChart3, PieChart, Users, BookOpen } from "lucide-react";
 
 export default function ReportsAnalyticsPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -29,9 +19,7 @@ export default function ReportsAnalyticsPage() {
   const totalCopies = books.reduce((acc, b) => acc + b.total_copies, 0);
   const availableCopies = books.reduce((acc, b) => acc + b.available_copies, 0);
   const activeBorrows = borrows.filter((b) => b.status === "ACTIVE").length;
-  const overdueBorrows = borrows.filter((b) => b.status === "OVERDUE").length;
 
-  // Category Distribution Computation
   const categoriesMap: Record<string, number> = {};
   books.forEach((b) => {
     categoriesMap[b.category] = (categoriesMap[b.category] || 0) + b.total_copies;
@@ -43,7 +31,6 @@ export default function ReportsAnalyticsPage() {
     percentage: Math.round((count / (totalCopies || 1)) * 100),
   }));
 
-  // Export to CSV Function
   const exportCirculationCSV = () => {
     const headers = ["Loan ID", "User Name", "User Role", "Book Title", "Issue Date", "Due Date", "Status"];
     const rows = borrows.map((b) => [
@@ -66,107 +53,70 @@ export default function ReportsAnalyticsPage() {
     document.body.removeChild(link);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-white/10">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-500/30">
-              <BarChart3 className="w-6 h-6" />
-            </span>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">Analytics & Report Generation</h1>
-          </div>
-          <p className="text-slate-400 text-sm mt-1">
-            System performance metrics, category breakdowns, circulation statistics, and CSV data export.
-          </p>
+    <div className="space-y-5">
+      {/* 4 Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-slate-900">{books.length}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Total Catalog Titles</p>
         </div>
+
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-blue-600">
+            {Math.round(((totalCopies - availableCopies) / (totalCopies || 1)) * 100)}%
+          </p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Stock Utilization Rate</p>
+        </div>
+
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-amber-600">{activeBorrows}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Active Loan Count</p>
+        </div>
+
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-slate-900">{members.length}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Registered Members</p>
+        </div>
+      </div>
+
+      {/* Action Buttons Header */}
+      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-center justify-between">
+        <h2 className="text-sm font-bold text-slate-900">Reports & Export Options</h2>
+
         <div className="flex items-center gap-2">
           <button
             onClick={exportCirculationCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-lg shadow-emerald-600/30 transition-all"
+            className="px-3.5 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
           >
-            <Download className="w-4 h-4" />
-            Export CSV
+            <Download className="w-3.5 h-3.5" />
+            <span>Export CSV Report</span>
           </button>
           <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-white/10 transition-all"
+            onClick={() => window.print()}
+            className="px-3.5 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-all"
           >
-            <Printer className="w-4 h-4" />
-            Print Report
+            Print
           </button>
         </div>
       </div>
 
-      {/* Primary Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-indigo-500/20 text-indigo-400">
-            <BookOpen className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 uppercase font-semibold">Total Catalog Titles</p>
-            <p className="text-2xl font-bold text-white">{books.length}</p>
-          </div>
-        </div>
-
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400">
-            <TrendingUp className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 uppercase font-semibold">Stock Utilization Rate</p>
-            <p className="text-2xl font-bold text-emerald-300">
-              {Math.round(((totalCopies - availableCopies) / (totalCopies || 1)) * 100)}%
-            </p>
-          </div>
-        </div>
-
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-amber-500/20 text-amber-400">
-            <ArrowRightLeft className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 uppercase font-semibold">Active Loan Count</p>
-            <p className="text-2xl font-bold text-amber-300">{activeBorrows}</p>
-          </div>
-        </div>
-
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-purple-500/20 text-purple-400">
-            <Users className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 uppercase font-semibold">Registered Members</p>
-            <p className="text-2xl font-bold text-purple-300">{members.length}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Visual Analytics Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Visual Charts & Role Breakdown */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Category Breakdown */}
-        <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <PieChart className="w-5 h-5 text-sky-400" />
-            Catalog Volume by Category
-          </h2>
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
+          <h3 className="text-sm font-bold text-slate-900">Catalog Volume by Category</h3>
 
           <div className="space-y-3">
             {categoriesList.map((cat) => (
               <div key={cat.name} className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-300">
-                  <span className="font-semibold">{cat.name}</span>
-                  <span className="text-slate-400">{cat.count} Copies ({cat.percentage}%)</span>
+                <div className="flex justify-between text-xs text-slate-700 font-medium">
+                  <span>{cat.name}</span>
+                  <span className="text-slate-500">{cat.count} Copies ({cat.percentage}%)</span>
                 </div>
-                <div className="w-full h-2.5 rounded-full bg-slate-900 overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full"
+                    className="h-full bg-blue-600 rounded-full"
                     style={{ width: `${Math.max(5, cat.percentage)}%` }}
                   />
                 </div>
@@ -175,60 +125,21 @@ export default function ReportsAnalyticsPage() {
           </div>
         </div>
 
-        {/* Member Role Analytics */}
-        <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-400" />
-            User Roles & Distribution
-          </h2>
+        {/* Member Role Breakdown */}
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
+          <h3 className="text-sm font-bold text-slate-900">User Roles Breakdown</h3>
 
           <div className="grid grid-cols-2 gap-3">
             {(["STUDENT", "FACULTY", "LIBRARIAN", "ADMIN", "COORDINATOR"] as const).map((role) => {
               const count = members.filter((m) => m.role === role).length;
               return (
-                <div key={role} className="p-4 rounded-xl bg-slate-900/80 border border-white/5 space-y-1">
-                  <p className="text-xs text-slate-400 font-semibold">{role}</p>
-                  <p className="text-xl font-bold text-white">{count}</p>
+                <div key={role} className="p-3 rounded bg-slate-50 border border-slate-200">
+                  <p className="text-xs text-slate-500 font-semibold">{role}</p>
+                  <p className="text-xl font-bold text-slate-900 mt-1">{count}</p>
                 </div>
               );
             })}
           </div>
-        </div>
-      </div>
-
-      {/* Circulation Log Summary Table */}
-      <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
-            Master Circulation Summary Log
-          </h2>
-          <span className="text-xs text-slate-400">{borrows.length} Total Circulation Records</span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-white/10 bg-slate-900/80 text-slate-400 text-xs uppercase font-semibold">
-                <th className="p-3">Borrower</th>
-                <th className="p-3">Book Title</th>
-                <th className="p-3">Issue Date</th>
-                <th className="p-3">Due Date</th>
-                <th className="p-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5 text-slate-300 text-xs">
-              {borrows.slice(0, 5).map((b) => (
-                <tr key={b.id} className="hover:bg-white/5">
-                  <td className="p-3 font-semibold text-white">{b.user?.full_name || "Member"}</td>
-                  <td className="p-3">{b.book?.title || "Book"}</td>
-                  <td className="p-3 text-slate-400">{b.issue_date}</td>
-                  <td className="p-3 text-slate-400">{b.due_date}</td>
-                  <td className="p-3 font-bold">{b.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

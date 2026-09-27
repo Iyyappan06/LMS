@@ -13,7 +13,7 @@ import {
   Search,
   Filter,
   AlertCircle,
-  Sparkles,
+  Plus,
   DollarSign,
   Building2,
   BookOpen,
@@ -26,7 +26,6 @@ export default function FacultyRequestsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Form State for new Request
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -119,152 +118,84 @@ export default function FacultyRequestsPage() {
     .filter((r) => r.status === "APPROVED" || r.status === "ORDERED")
     .reduce((acc, r) => acc + r.estimated_cost, 0);
 
-  const getPriorityBadge = (priority: BookRequestPriority) => {
-    switch (priority) {
-      case "URGENT":
-        return "bg-rose-500/20 text-rose-300 border-rose-500/40";
-      case "HIGH":
-        return "bg-amber-500/20 text-amber-300 border-amber-500/40";
-      case "MEDIUM":
-        return "bg-indigo-500/20 text-indigo-300 border-indigo-500/40";
-      default:
-        return "bg-slate-500/20 text-slate-300 border-slate-500/40";
-    }
-  };
-
-  const getStatusBadge = (status: BookRequestStatus) => {
-    switch (status) {
-      case "APPROVED":
-        return { icon: CheckCircle2, cls: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" };
-      case "ORDERED":
-        return { icon: ShoppingCart, cls: "bg-sky-500/20 text-sky-300 border-sky-500/40" };
-      case "REJECTED":
-        return { icon: XCircle, cls: "bg-rose-500/20 text-rose-300 border-rose-500/40" };
-      default:
-        return { icon: Clock, cls: "bg-amber-500/20 text-amber-300 border-amber-500/40" };
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-white/10">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-              <FilePlus className="w-6 h-6" />
-            </span>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">Faculty Book Acquisition Requests</h1>
-          </div>
-          <p className="text-slate-400 text-sm mt-1">
-            Submit request recommendations for new academic research titles, course materials, and library procurement.
-          </p>
-        </div>
-        {(isFaculty || isAdmin || isLibrarian) && (
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/30 transition-all text-sm"
-          >
-            <Sparkles className="w-4 h-4" />
-            Submit New Request
-          </button>
-        )}
-      </div>
-
-      {/* Metrics Row */}
+    <div className="space-y-5">
+      {/* 4 Stat Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-indigo-500/20 text-indigo-400">
-            <BookOpen className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 uppercase font-semibold">Total Requests</p>
-            <p className="text-2xl font-bold text-white">{requests.length}</p>
-          </div>
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-slate-900">{requests.length}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Total Requests</p>
         </div>
 
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-amber-500/20 text-amber-400">
-            <Clock className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 uppercase font-semibold">Pending Review</p>
-            <p className="text-2xl font-bold text-amber-300">
-              {requests.filter((r) => r.status === "PENDING").length}
-            </p>
-          </div>
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-amber-600">
+            {requests.filter((r) => r.status === "PENDING").length}
+          </p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Pending Review</p>
         </div>
 
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 uppercase font-semibold">Approved / Ordered</p>
-            <p className="text-2xl font-bold text-emerald-300">
-              {requests.filter((r) => r.status === "APPROVED" || r.status === "ORDERED").length}
-            </p>
-          </div>
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-emerald-600">
+            {requests.filter((r) => r.status === "APPROVED" || r.status === "ORDERED").length}
+          </p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Approved / Ordered</p>
         </div>
 
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-sky-500/20 text-sky-400">
-            <DollarSign className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 uppercase font-semibold">Est. Approved Budget</p>
-            <p className="text-2xl font-bold text-sky-300">${totalCostApproved.toFixed(2)}</p>
-          </div>
+        <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
+          <p className="text-3xl font-extrabold text-blue-600">${totalCostApproved.toFixed(2)}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">Approved Budget</p>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col md:flex-row gap-4 justify-between items-center">
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+      {/* Top Filter Bar */}
+      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+        <div className="flex flex-1 flex-col sm:flex-row gap-2.5 w-full">
           <input
             type="text"
             placeholder="Search request title, author, requester..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-indigo-500"
+            className="flex-1 px-3 py-2 rounded border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-blue-600 bg-white"
           />
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 rounded border border-slate-300 text-slate-700 text-xs focus:outline-none focus:border-blue-600 bg-white"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="ORDERED">Ordered</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <Filter className="w-4 h-4 text-slate-400" />
-          <div className="flex items-center gap-1.5 overflow-x-auto">
-            {["ALL", "PENDING", "APPROVED", "ORDERED", "REJECTED"].map((st) => (
-              <button
-                key={st}
-                onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                  statusFilter === st
-                    ? "bg-indigo-600 text-white border-indigo-500"
-                    : "bg-slate-900/60 text-slate-400 border-white/10 hover:text-white"
-                }`}
-              >
-                {st}
-              </button>
-            ))}
-          </div>
-        </div>
+        {(isFaculty || isAdmin || isLibrarian) && (
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-3.5 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1 shadow-sm transition-all ml-auto md:ml-0"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Submit Request</span>
+          </button>
+        )}
       </div>
 
       {/* Requests Table */}
-      <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
+          <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-white/10 bg-slate-900/80 text-slate-400 text-xs uppercase font-semibold tracking-wider">
-                <th className="p-4">Book Title & Details</th>
-                <th className="p-4">Requester & Dept</th>
-                <th className="p-4">Priority & Cost</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Actions</th>
+              <tr className="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-200">
+                <th className="p-3">BOOK TITLE & DETAILS</th>
+                <th className="p-3">REQUESTER & DEPT</th>
+                <th className="p-3">PRIORITY & COST</th>
+                <th className="p-3">STATUS</th>
+                <th className="p-3 text-right">ACTIONS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-slate-300">
+            <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredRequests.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-slate-400">
@@ -272,82 +203,79 @@ export default function FacultyRequestsPage() {
                   </td>
                 </tr>
               ) : (
-                filteredRequests.map((req) => {
-                  const statusInfo = getStatusBadge(req.status);
-                  const StatusIcon = statusInfo.icon;
-
-                  return (
-                    <tr key={req.id} className="hover:bg-white/5 transition-colors">
-                      <td className="p-4">
-                        <div className="font-bold text-white text-base">{req.title}</div>
-                        <div className="text-xs text-slate-400">
-                          by <span className="text-slate-300">{req.author}</span>
-                          {req.publisher && ` • ${req.publisher}`}
-                          {req.isbn && ` (ISBN: ${req.isbn})`}
+                filteredRequests.map((req) => (
+                  <tr key={req.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3">
+                      <div className="font-bold text-slate-900 text-xs">{req.title}</div>
+                      <div className="text-[11px] text-slate-500">
+                        by {req.author} {req.publisher && `• ${req.publisher}`} {req.isbn && `(ISBN: ${req.isbn})`}
+                      </div>
+                      <p className="text-[11px] text-slate-500 italic mt-0.5">"{req.reason}"</p>
+                    </td>
+                    <td className="p-3">
+                      <div className="font-bold text-slate-900">{req.faculty_name}</div>
+                      <div className="text-[11px] text-slate-500">{req.department}</div>
+                    </td>
+                    <td className="p-3">
+                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[10px] uppercase">
+                        {req.priority}
+                      </span>
+                      <div className="text-xs font-bold text-blue-600 mt-1">
+                        ${req.estimated_cost.toFixed(2)}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <span
+                        className={`px-2.5 py-0.5 rounded text-xs font-bold uppercase ${
+                          req.status === "APPROVED"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : req.status === "ORDERED"
+                            ? "bg-blue-50 text-blue-700 border border-blue-200"
+                            : req.status === "REJECTED"
+                            ? "bg-rose-50 text-rose-700 border border-rose-200"
+                            : "bg-amber-50 text-amber-700 border border-amber-200"
+                        }`}
+                      >
+                        {req.status}
+                      </span>
+                      {req.admin_notes && (
+                        <p className="text-[10px] text-slate-500 mt-1">Note: {req.admin_notes}</p>
+                      )}
+                    </td>
+                    <td className="p-3 text-right">
+                      {isAdmin || isLibrarian ? (
+                        <div className="flex items-center justify-end gap-1.5">
+                          {req.status !== "APPROVED" && (
+                            <button
+                              onClick={() => handleOpenStatusModal(req, "APPROVED")}
+                              className="px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs border border-emerald-200"
+                            >
+                              Approve
+                            </button>
+                          )}
+                          {req.status !== "ORDERED" && req.status === "APPROVED" && (
+                            <button
+                              onClick={() => handleOpenStatusModal(req, "ORDERED")}
+                              className="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm"
+                            >
+                              Order
+                            </button>
+                          )}
+                          {req.status !== "REJECTED" && (
+                            <button
+                              onClick={() => handleOpenStatusModal(req, "REJECTED")}
+                              className="px-2.5 py-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs border border-rose-200"
+                            >
+                              Reject
+                            </button>
+                          )}
                         </div>
-                        <p className="text-xs text-slate-400 mt-1 italic line-clamp-1">"{req.reason}"</p>
-                      </td>
-                      <td className="p-4">
-                        <div className="font-semibold text-white">{req.faculty_name}</div>
-                        <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                          <Building2 className="w-3 h-3 text-indigo-400" />
-                          {req.department}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getPriorityBadge(req.priority)}`}>
-                          {req.priority}
-                        </span>
-                        <div className="text-sm font-bold text-emerald-400 mt-1">
-                          ${req.estimated_cost.toFixed(2)}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold border ${statusInfo.cls}`}>
-                          <StatusIcon className="w-3.5 h-3.5" />
-                          {req.status}
-                        </span>
-                        {req.admin_notes && (
-                          <p className="text-[11px] text-slate-400 mt-1 line-clamp-1" title={req.admin_notes}>
-                            Note: {req.admin_notes}
-                          </p>
-                        )}
-                      </td>
-                      <td className="p-4 text-right">
-                        {(isAdmin || isLibrarian) ? (
-                          <div className="flex items-center justify-end gap-1.5">
-                            {req.status !== "APPROVED" && (
-                              <button
-                                onClick={() => handleOpenStatusModal(req, "APPROVED")}
-                                className="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 text-xs font-semibold"
-                              >
-                                Approve
-                              </button>
-                            )}
-                            {req.status !== "ORDERED" && req.status === "APPROVED" && (
-                              <button
-                                onClick={() => handleOpenStatusModal(req, "ORDERED")}
-                                className="px-2.5 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 hover:bg-sky-500/30 border border-sky-500/30 text-xs font-semibold"
-                              >
-                                Mark Ordered
-                              </button>
-                            )}
-                            {req.status !== "REJECTED" && (
-                              <button
-                                onClick={() => handleOpenStatusModal(req, "REJECTED")}
-                                className="px-2.5 py-1.5 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 text-xs font-semibold"
-                              >
-                                Reject
-                              </button>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-slate-500 italic">Faculty Request</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
+                      ) : (
+                        <span className="text-[11px] text-slate-400 italic">Faculty Request</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -356,122 +284,90 @@ export default function FacultyRequestsPage() {
 
       {/* New Request Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-xl p-6 rounded-2xl border border-white/10 shadow-2xl relative space-y-4">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <FilePlus className="w-5 h-5 text-indigo-400" />
-              Submit Book Acquisition Request
-            </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-lg p-6 rounded-lg border border-slate-200 shadow-xl space-y-4">
+            <h3 className="text-lg font-bold text-slate-900 border-b pb-2">
+              Submit Acquisition Request
+            </h3>
 
-            <form onSubmit={handleCreateSubmit} className="space-y-4 text-sm">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleCreateSubmit} className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Book Title *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Book Title *</label>
                   <input
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g. Designing Data-Intensive Applications"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                    className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Author(s) *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Author *</label>
                   <input
                     type="text"
                     required
                     value={formData.author}
                     onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                    placeholder="e.g. Martin Kleppmann"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                    className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Publisher</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Publisher</label>
                   <input
                     type="text"
                     value={formData.publisher}
                     onChange={(e) => setFormData({ ...formData, publisher: e.target.value })}
-                    placeholder="e.g. O'Reilly"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                    className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">ISBN</label>
+                  <label className="block font-semibold text-slate-700 mb-1">ISBN</label>
                   <input
                     type="text"
                     value={formData.isbn}
                     onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
-                    placeholder="978-XXXXX"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                    className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Est. Cost ($)</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Est. Cost ($)</label>
                   <input
                     type="number"
                     step="0.01"
                     required
                     value={formData.estimated_cost}
                     onChange={(e) => setFormData({ ...formData, estimated_cost: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                    className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                   />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Department</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Priority</label>
-                  <select
-                    value={formData.priority}
-                    onChange={(e) => setFormData({ ...formData, priority: e.target.value as BookRequestPriority })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
-                  >
-                    <option value="LOW">LOW</option>
-                    <option value="MEDIUM">MEDIUM</option>
-                    <option value="HIGH">HIGH</option>
-                    <option value="URGENT">URGENT</option>
-                  </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Reason / Course Requirement *</label>
+                <label className="block font-semibold text-slate-700 mb-1">Reason for Acquisition *</label>
                 <textarea
                   required
-                  rows={3}
+                  rows={2}
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                  placeholder="Specify why this book is recommended for purchase (e.g., Course textbook for CS401, research reference)..."
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                  className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex justify-end gap-2 pt-2 border-t">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold"
+                  className="px-3 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/30"
+                  className="px-4 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
                 >
                   Submit Request
                 </button>
@@ -481,44 +377,37 @@ export default function FacultyRequestsPage() {
         </div>
       )}
 
-      {/* Admin Review / Status Update Modal */}
+      {/* Review Modal */}
       {notesModalOpen && selectedReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-md p-6 rounded-2xl border border-white/10 space-y-4">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-indigo-400" />
-              Update Status: <span className="text-indigo-300">{targetStatus}</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-sm p-6 rounded-lg border border-slate-200 shadow-xl space-y-4">
+            <h3 className="text-base font-bold text-slate-900 border-b pb-2">
+              Update Status: {targetStatus}
             </h3>
 
-            <p className="text-xs text-slate-300">
-              Updating status for request: <strong className="text-white">{selectedReq.title}</strong>
-            </p>
-
-            <form onSubmit={handleStatusSubmit} className="space-y-4 text-sm">
+            <form onSubmit={handleStatusSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Reviewer Notes / Budget remarks (Optional)
-                </label>
+                <label className="block font-semibold text-slate-700 mb-1">Reviewer Notes (Optional)</label>
                 <textarea
                   rows={3}
                   value={adminNotesInput}
                   onChange={(e) => setAdminNotesInput(e.target.value)}
-                  placeholder="e.g. Approved under Q2 Library Acquisition Budget..."
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                  placeholder="e.g. Approved under Q2 Budget..."
+                  className="w-full px-3 py-1.5 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                 />
               </div>
 
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-2 pt-2 border-t">
                 <button
                   type="button"
                   onClick={() => setNotesModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs"
+                  className="px-3 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/30 text-xs"
+                  className="px-4 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
                 >
                   Save Status
                 </button>

@@ -3,19 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { DataStore } from "@/lib/data-store";
 import { SystemConfig } from "@/lib/types";
-import {
-  Settings,
-  Save,
-  Clock,
-  DollarSign,
-  Building,
-  Mail,
-  Shield,
-  RotateCcw,
-  Download,
-  Database,
-  CheckCircle2,
-} from "lucide-react";
+import { Save, Download, RotateCcw, CheckCircle2 } from "lucide-react";
 
 export default function SystemSettingsPage() {
   const [config, setConfig] = useState<SystemConfig>({
@@ -63,49 +51,26 @@ export default function SystemSettingsPage() {
     downloadAnchor.remove();
   };
 
-  const handleResetData = () => {
-    if (confirm("Are you sure you want to reset all local storage data back to initial demo seeds?")) {
-      DataStore.resetAllData();
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-white/10">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-slate-500/20 text-slate-300 border border-slate-500/30">
-              <Settings className="w-6 h-6" />
-            </span>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">System Administration & Settings</h1>
-          </div>
-          <p className="text-slate-400 text-sm mt-1">
-            Global library circulation policies, fine schedules, contact info, and database backup snapshots.
-          </p>
-        </div>
-      </div>
-
+    <div className="space-y-5">
       {toastMessage && (
-        <div className="p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-semibold flex items-center gap-2 animate-fadeIn">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+        <div className="p-3.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           {toastMessage}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Circulation Config Form */}
-        <div className="lg:col-span-2 glass-panel p-6 rounded-2xl border border-white/10 space-y-5">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Shield className="w-5 h-5 text-indigo-400" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Main Settings Form */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-lg border border-slate-200 shadow-sm space-y-4">
+          <h2 className="text-sm font-bold text-slate-900 border-b pb-2">
             Circulation Policies & Fine Rates
           </h2>
 
-          <form onSubmit={handleSaveConfig} className="space-y-4 text-sm">
+          <form onSubmit={handleSaveConfig} className="space-y-4 text-xs">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                <label className="block font-semibold text-slate-700 mb-1">
                   Student Loan Duration (Days)
                 </label>
                 <input
@@ -114,13 +79,12 @@ export default function SystemSettingsPage() {
                   required
                   value={config.student_loan_days}
                   onChange={(e) => setConfig({ ...config, student_loan_days: parseInt(e.target.value) || 1 })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-purple-400" />
+                <label className="block font-semibold text-slate-700 mb-1">
                   Faculty Loan Duration (Days)
                 </label>
                 <input
@@ -129,15 +93,14 @@ export default function SystemSettingsPage() {
                   required
                   value={config.faculty_loan_days}
                   onChange={(e) => setConfig({ ...config, faculty_loan_days: parseInt(e.target.value) || 1 })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
-                  <RotateCcw className="w-3.5 h-3.5 text-sky-400" />
+                <label className="block font-semibold text-slate-700 mb-1">
                   Max Renewals Allowed
                 </label>
                 <input
@@ -146,13 +109,12 @@ export default function SystemSettingsPage() {
                   required
                   value={config.max_renewals_allowed}
                   onChange={(e) => setConfig({ ...config, max_renewals_allowed: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
-                  <DollarSign className="w-3.5 h-3.5 text-amber-400" />
+                <label className="block font-semibold text-slate-700 mb-1">
                   Overdue Fine Rate ($/Day)
                 </label>
                 <input
@@ -162,49 +124,35 @@ export default function SystemSettingsPage() {
                   required
                   value={config.fine_per_day}
                   onChange={(e) => setConfig({ ...config, fine_per_day: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                 />
               </div>
             </div>
 
-            <div className="border-t border-white/10 pt-4 space-y-4">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Building className="w-4 h-4 text-emerald-400" />
-                Library Profile & Contact Information
+            <div className="border-t border-slate-200 pt-4 space-y-3">
+              <h3 className="text-xs font-bold text-slate-900">
+                Library Profile & Support Info
               </h3>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Library Name</label>
+                <label className="block font-semibold text-slate-700 mb-1">Library Name</label>
                 <input
                   type="text"
                   required
                   value={config.library_name}
                   onChange={(e) => setConfig({ ...config, library_name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-indigo-400" />
-                  Support Email
-                </label>
+                <label className="block font-semibold text-slate-700 mb-1">Support Email</label>
                 <input
                   type="email"
                   required
                   value={config.contact_email}
                   onChange={(e) => setConfig({ ...config, contact_email: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Operating Hours</label>
-                <input
-                  type="text"
-                  value={config.operating_hours || ""}
-                  onChange={(e) => setConfig({ ...config, operating_hours: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white focus:border-indigo-500"
+                  className="w-full px-3 py-2 rounded border border-slate-300 text-slate-900 focus:border-blue-600"
                 />
               </div>
             </div>
@@ -212,49 +160,50 @@ export default function SystemSettingsPage() {
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all"
+                className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all"
               >
-                <Save className="w-4 h-4" />
-                Save System Settings
+                Save Settings
               </button>
             </div>
           </form>
         </div>
 
-        {/* Database Utilities & Maintenance */}
-        <div className="space-y-6">
-          <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Database className="w-5 h-5 text-sky-400" />
-              Backup & Data Utilities
-            </h2>
+        {/* Database Utilities */}
+        <div className="space-y-4">
+          <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-3">
+            <h3 className="text-xs font-bold text-slate-900 border-b pb-2">
+              Backup & Database Snapshot
+            </h3>
 
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Export full system state (Books, Circulation, Profiles, Audits, Requests) to JSON backup snapshot.
+            <p className="text-xs text-slate-500">
+              Download complete database backup snapshot (Profiles, Books, Borrows, Audits).
             </p>
 
             <button
               onClick={handleExportBackup}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-lg shadow-sky-600/30 transition-all"
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all"
             >
-              <Download className="w-4 h-4" />
-              Download System Backup (.json)
+              <Download className="w-3.5 h-3.5" />
+              <span>Download Backup (.json)</span>
             </button>
           </div>
 
-          <div className="glass-panel p-6 rounded-2xl border border-rose-500/20 space-y-4 bg-rose-500/5">
-            <h2 className="text-lg font-bold text-rose-300 flex items-center gap-2">
-              <RotateCcw className="w-5 h-5 text-rose-400" />
-              Reset Factory State
-            </h2>
+          <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-3">
+            <h3 className="text-xs font-bold text-slate-900 border-b pb-2">
+              Reset Demo Data
+            </h3>
 
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Reset all local demo storage back to fresh seeded defaults.
+            <p className="text-xs text-slate-500">
+              Reset local database back to fresh seeded defaults.
             </p>
 
             <button
-              onClick={handleResetData}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 border border-rose-500/30 font-semibold text-xs transition-all"
+              onClick={() => {
+                if (confirm("Reset local storage back to initial seed data?")) {
+                  DataStore.resetAllData();
+                }
+              }}
+              className="w-full px-3 py-2 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold text-xs transition-all"
             >
               Reset Seed Data
             </button>
