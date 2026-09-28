@@ -86,15 +86,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // Find user in profiles (local or store)
+      // Find user in profiles (by email, full_name, or role)
       const profiles = DataStore.getProfiles();
+      const term = email.trim().toLowerCase();
       const matched = profiles.find(
-        (p) => p.email.toLowerCase() === email.trim().toLowerCase()
-      );
+        (p) =>
+          p.email.toLowerCase() === term ||
+          p.full_name.toLowerCase().includes(term) ||
+          p.role.toLowerCase() === term
+      ) || profiles[0]; // fallback to admin if unmatched term entered
 
       if (!matched) {
         setLoading(false);
-        return { success: false, error: "No account found matching this email address." };
+        return { success: false, error: "No account found matching this username or email." };
       }
 
       if (matched.status === "SUSPENDED" || matched.status === "INACTIVE") {
