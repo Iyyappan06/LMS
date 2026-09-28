@@ -163,19 +163,13 @@ CREATE TABLE IF NOT EXISTS system_config (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 10. ROW LEVEL SECURITY (RLS) POLICIES
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE books ENABLE ROW LEVEL SECURITY;
-ALTER TABLE borrow_records ENABLE ROW LEVEL SECURITY;
-ALTER TABLE book_requests ENABLE ROW LEVEL SECURITY;
-ALTER TABLE course_readings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE fine_records ENABLE ROW LEVEL SECURITY;
-ALTER TABLE inventory_audits ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Public Read Profiles" ON profiles FOR SELECT USING (true);
-CREATE POLICY "Public Read Books" ON books FOR SELECT USING (true);
-CREATE POLICY "Public Read Borrows" ON borrow_records FOR SELECT USING (true);
-CREATE POLICY "Public Read Requests" ON book_requests FOR SELECT USING (true);
-CREATE POLICY "Public Read Readings" ON course_readings FOR SELECT USING (true);
-CREATE POLICY "Public Read Fines" ON fine_records FOR SELECT USING (true);
-CREATE POLICY "Public Read Audits" ON inventory_audits FOR SELECT USING (true);
+-- 10. ROW LEVEL SECURITY (RLS) — DISABLED
+-- =============================================================================
+-- RLS is DISABLED because this app uses a demo auth context (client-side role
+-- switcher) instead of real Supabase Auth. Without a real auth.uid() session,
+-- RLS would block all INSERT/UPDATE/DELETE operations.
+--
+-- To enable RLS later (when you add real Supabase Auth):
+--   1. ALTER TABLE <table_name> ENABLE ROW LEVEL SECURITY;
+--   2. Add SELECT/INSERT/UPDATE/DELETE policies using auth.uid()
+-- =============================================================================

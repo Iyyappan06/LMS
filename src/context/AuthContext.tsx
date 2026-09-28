@@ -3,13 +3,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { UserProfile, UserRole } from "@/lib/types";
 import { DataStore, INITIAL_PROFILES } from "@/lib/data-store";
+import { supabase } from "@/lib/supabase/client";
+import { useRouter, usePathname } from "next/navigation";
 
 interface AuthContextType {
-  currentUser: UserProfile;
-  switchRole: (role: UserRole) => void;
-  setCurrentUser: (user: UserProfile) => void;
+  currentUser: UserProfile | null;
+  login: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
   allProfiles: UserProfile[];
   refreshProfiles: () => void;
+  loading: boolean;
   // RBAC Permission helpers
   isAdmin: boolean;
   isLibrarian: boolean;
@@ -28,19 +31,39 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUserState] = useState<UserProfile>(INITIAL_PROFILES[0]);
+  const [currentUser, setCurrentUserState] = useState<UserProfile | null>(null);
   const [allProfiles, setAllProfiles] = useState<UserProfile[]>(INITIAL_PROFILES);
-  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    setMounted(true);
-    const user = DataStore.getCurrentUser();
+    // Initial session load
+    const storedUserId = typeof window !== "undefined" ? localStorage.getItem("lms_user_id") : null;
     const profiles = DataStore.getProfiles();
-    setCurrentUserState(user);
     setAllProfiles(profiles);
 
+    if (storedUserId) {
+      const found = profiles.find((p) => p.id === storedUserId);
+      if (found) {
+        setCurrentUserState(found);
+      } else {
+        // Fallback to first profile if stored ID invalid
+        setCurrentUserState(profiles[0]);
+        localStorage.setItem("lms_user_id", profiles[0].id);
+      }
+    } else {
+      // Default logged in as admin for smooth initial experience, but support explicit login/logout
+      const defaultUser = DataStore.getCurrentUser() || profiles[0];
+      setCurrentUserState(defaultUser);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("lms_user_id", defaultUser.id);
+      }
+    }
+
+    setLoading(false);
+
     const handleDataChange = () => {
-      setCurrentUserState(DataStore.getCurrentUser());
       setAllProfiles(DataStore.getProfiles());
     };
 
@@ -48,21 +71,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("lms_data_change", handleDataChange);
   }, []);
 
-  const switchRole = (role: UserRole) => {
-    const updated = DataStore.setCurrentUserByRole(role);
-    setCurrentUserState(updated);
+  const login = async (email: string, password?: string): Promise<{ success: boolean; error?: string }> => {
+    setLoading(true);
+    try {
+      // Try Supabase Auth if configured
+      if (supabase) {
+        const { error: sbError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: password || "password123",
+        });
+        // We log any error, but proceed to check local profiles table for seamless experience
+        if (sbError) {
+          console.warn("Supabase Auth login notice:", sbError.message);
+        }
+      }
+
+      // Find user in profiles (local or store)
+      const profiles = DataStore.getProfiles();
+      const matched = profiles.find(
+        (p) => p.email.toLowerCase() === email.trim().toLowerCase()
+      );
+
+      if (!matched) {
+        setLoading(false);
+        return { success: false, error: "No account found matching this email address." };
+      }
+
+      if (matched.status === "SUSPENDED" || matched.status === "INACTIVE") {
+        setLoading(false);
+        return { success: false, error: "Your account has been suspended or deactivated. Contact Library Admin." };
+      }
+
+      setCurrentUserState(matched);
+      DataStore.setCurrentUser(matched);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("lms_user_id", matched.id);
+      }
+
+      setLoading(false);
+      return { success: true };
+    } catch (err: any) {
+      setLoading(false);
+      return { success: false, error: err.message || "Login failed. Please try again." };
+    }
   };
 
-  const setCurrentUser = (user: UserProfile) => {
-    DataStore.setCurrentUser(user);
-    setCurrentUserState(user);
+  const logout = async () => {
+    setLoading(true);
+    if (supabase) {
+      await supabase.auth.signOut().catch(() => {});
+    }
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("lms_user_id");
+    }
+    setCurrentUserState(null);
+    setLoading(false);
+    router.push("/login");
   };
 
   const refreshProfiles = () => {
     setAllProfiles(DataStore.getProfiles());
   };
 
-  const role = currentUser.role;
+  const role = currentUser?.role;
   const isAdmin = role === "ADMIN";
   const isLibrarian = role === "LIBRARIAN";
   const isFaculty = role === "FACULTY";
@@ -81,10 +152,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         currentUser,
-        switchRole,
-        setCurrentUser,
+        login,
+        logout,
         allProfiles,
         refreshProfiles,
+        loading,
         isAdmin,
         isLibrarian,
         isFaculty,

@@ -39,7 +39,7 @@ export default function FineOverduesPage() {
       selectedFine.id,
       action,
       action === "PAID" ? paymentMethod : undefined,
-      action === "WAIVED" ? currentUser.full_name : undefined
+      action === "WAIVED" ? (currentUser?.full_name || "Librarian") : undefined
     );
     setPaymentModalOpen(false);
     setSelectedFine(null);

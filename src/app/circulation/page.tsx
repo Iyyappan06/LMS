@@ -42,11 +42,11 @@ export default function CirculationPage() {
 
   // Filter for student/faculty view vs librarian view
   const userBorrows = isStudent || isFaculty
-    ? borrows.filter((b) => b.user_id === currentUser.id)
+    ? borrows.filter((b) => b.user_id === currentUser?.id)
     : borrows;
 
   const activeBorrowsCount = userBorrows.filter((b) => b.status === "ACTIVE" || b.status === "OVERDUE").length;
-  const availableSlots = Math.max(0, currentUser.max_books_allowed - activeBorrowsCount);
+  const availableSlots = Math.max(0, (currentUser?.max_books_allowed || 0) - activeBorrowsCount);
 
   const handleIssueSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +85,7 @@ export default function CirculationPage() {
       {/* Stat Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
-          <p className="text-3xl font-extrabold text-slate-900">{activeBorrowsCount} / {currentUser.max_books_allowed}</p>
+          <p className="text-3xl font-extrabold text-slate-900">{activeBorrowsCount} / {currentUser?.max_books_allowed || 0}</p>
           <p className="text-xs text-slate-500 font-semibold mt-1">Active Borrowed Books</p>
         </div>
 

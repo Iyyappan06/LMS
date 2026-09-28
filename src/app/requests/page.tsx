@@ -32,7 +32,7 @@ export default function FacultyRequestsPage() {
     publisher: "",
     isbn: "",
     reason: "",
-    department: currentUser.department || "Computer Science & Engineering",
+    department: currentUser?.department || "Computer Science & Engineering",
     estimated_cost: 49.99,
     priority: "MEDIUM" as BookRequestPriority,
   });
@@ -61,9 +61,9 @@ export default function FacultyRequestsPage() {
     }
 
     DataStore.saveRequest({
-      faculty_id: currentUser.id,
-      faculty_name: currentUser.full_name,
-      faculty_email: currentUser.email,
+      faculty_id: currentUser?.id || "",
+      faculty_name: currentUser?.full_name || "Faculty Member",
+      faculty_email: currentUser?.email || "faculty@lms.com",
       title: formData.title,
       author: formData.author,
       publisher: formData.publisher,
@@ -81,7 +81,7 @@ export default function FacultyRequestsPage() {
       publisher: "",
       isbn: "",
       reason: "",
-      department: currentUser.department || "Computer Science & Engineering",
+      department: currentUser?.department || "Computer Science & Engineering",
       estimated_cost: 49.99,
       priority: "MEDIUM",
     });

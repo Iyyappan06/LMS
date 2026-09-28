@@ -4,7 +4,15 @@ import React, { ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 
+import { usePathname } from "next/navigation";
+
 export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+
+  if (pathname === "/login") {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-[#F3F6F9] flex">
       {/* Sidebar */}

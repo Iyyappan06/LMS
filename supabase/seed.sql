@@ -53,8 +53,8 @@ ON CONFLICT (id) DO NOTHING;
 
 -- 7. SEED INVENTORY AUDITS (Module 13: Inventory Management & Condition Audits)
 INSERT INTO inventory_audits (id, book_id, book_title, isbn, condition_status, notes, copies_affected, audited_by, audited_at) VALUES
-('g1010101-0001-0000-0000-000000000001', 'b1010101-0003-0000-0000-000000000003', 'Effective Java', '978-0134685991', 'DAMAGED', 'Water damage detected on 2 copies. Spine cracked on 1 copy. Moved to repair queue.', 2, 'Sarah Jenkins (Chief Librarian)', NOW() - INTERVAL '10 days'),
-('g1010101-0002-0000-0000-000000000002', 'b1010101-0006-0000-0000-000000000006', 'Database System Concepts', '978-0073529325', 'LOST', 'Declared lost after annual inventory check. Not found on shelf DB-A-101.', 1, 'Sarah Jenkins (Chief Librarian)', NOW() - INTERVAL '30 days')
+('a7010101-0001-0000-0000-000000000001', 'b1010101-0003-0000-0000-000000000003', 'Effective Java', '978-0134685991', 'DAMAGED', 'Water damage detected on 2 copies. Spine cracked on 1 copy. Moved to repair queue.', 2, 'Sarah Jenkins (Chief Librarian)', NOW() - INTERVAL '10 days'),
+('a7010101-0002-0000-0000-000000000002', 'b1010101-0006-0000-0000-000000000006', 'Database System Concepts', '978-0073529325', 'LOST', 'Declared lost after annual inventory check. Not found on shelf DB-A-101.', 1, 'Sarah Jenkins (Chief Librarian)', NOW() - INTERVAL '30 days')
 ON CONFLICT (id) DO NOTHING;
 
 -- 8. SEED SYSTEM CONFIG (Module 14: System Administration)

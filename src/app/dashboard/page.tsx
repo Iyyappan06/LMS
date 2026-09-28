@@ -37,9 +37,9 @@ export default function DashboardPage() {
   const totalCopies = books.reduce((acc, b) => acc + b.total_copies, 0);
   const availableCopies = books.reduce((acc, b) => acc + b.available_copies, 0);
 
-  const myBorrows = borrows.filter((b) => b.user_id === currentUser.id);
+  const myBorrows = borrows.filter((b) => b.user_id === currentUser?.id);
   const myActiveBorrows = myBorrows.filter((b) => b.status === "ACTIVE" || b.status === "OVERDUE");
-  const slotsRemaining = Math.max(0, currentUser.max_books_allowed - myActiveBorrows.length);
+  const slotsRemaining = Math.max(0, (currentUser?.max_books_allowed || 0) - myActiveBorrows.length);
 
   const availableBooks = books.filter((b) => b.available_copies > 0).slice(0, 5);
 
@@ -50,15 +50,15 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold uppercase tracking-wider">
-              {currentUser.role}
+              {currentUser?.role || "GUEST"}
             </span>
             <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
               <Building2 className="w-3.5 h-3.5 text-slate-400" />
-              Department: {currentUser.department || "Computer Science"}
+              Department: {currentUser?.department || "Computer Science"}
             </span>
           </div>
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Welcome, {currentUser.full_name}
+            Welcome, {currentUser?.full_name || "User"}
           </h2>
           <p className="text-xs text-slate-500 font-medium mt-1">
             View your borrowed books and search the catalog.
@@ -110,7 +110,7 @@ export default function DashboardPage() {
           <div>
             <h3 className="text-sm font-bold text-slate-900">Currently Borrowed Books</h3>
             <p className="text-xs text-slate-500">
-              Active: {myActiveBorrows.length} / {currentUser.max_books_allowed} limit ({slotsRemaining} slots remaining)
+              Active: {myActiveBorrows.length} / {currentUser?.max_books_allowed || 0} limit ({slotsRemaining} slots remaining)
             </p>
           </div>
           <Link

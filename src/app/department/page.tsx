@@ -24,8 +24,8 @@ export default function DepartmentResourcesPage() {
   const [formData, setFormData] = useState({
     course_code: "",
     course_name: "",
-    department: currentUser.department || "Computer Science & Engineering",
-    coordinator_name: currentUser.full_name,
+    department: currentUser?.department || "Computer Science & Engineering",
+    coordinator_name: currentUser?.full_name || "Course Coordinator",
     book_title: "",
     author: "",
     isbn: "",
@@ -59,8 +59,8 @@ export default function DepartmentResourcesPage() {
     setFormData({
       course_code: "",
       course_name: "",
-      department: currentUser.department || "Computer Science & Engineering",
-      coordinator_name: currentUser.full_name,
+      department: currentUser?.department || "Computer Science & Engineering",
+      coordinator_name: currentUser?.full_name || "Course Coordinator",
       book_title: "",
       author: "",
       isbn: "",

@@ -48,7 +48,7 @@ export default function InventoryAuditsPage() {
       condition_status: formData.condition_status,
       notes: formData.notes || "Standard physical condition audit log.",
       copies_affected: formData.copies_affected,
-      audited_by: `${currentUser.full_name} (${currentUser.role})`,
+      audited_by: `${currentUser?.full_name || "Librarian"} (${currentUser?.role || "LIBRARIAN"})`,
     });
 
     setIsModalOpen(false);
