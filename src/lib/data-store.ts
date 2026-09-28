@@ -9,6 +9,7 @@ import {
   FineRecord,
   InventoryAudit,
 } from "./types";
+import { supabase } from "./supabase/client";
 
 export const INITIAL_REQUESTS: BookRequest[] = [
   {
@@ -483,6 +484,42 @@ export class DataStore {
       profiles.push(updated);
     }
     this.set(STORAGE_KEYS.PROFILES, profiles);
+
+    // Sync to Supabase PostgreSQL database & Supabase Auth if configured
+    if (supabase) {
+      supabase
+        .from("profiles")
+        .upsert({
+          id: updated.id,
+          email: updated.email,
+          full_name: updated.full_name,
+          role: updated.role,
+          department: updated.department,
+          max_books_allowed: updated.max_books_allowed,
+          phone: updated.phone,
+          status: updated.status,
+        })
+        .then(({ error }) => {
+          if (error) console.error("Supabase profile sync error:", error.message);
+          else console.log("Profile successfully saved to Supabase DB:", updated.email);
+        });
+
+      // Register/sync user in Supabase Auth as well
+      supabase.auth.signUp({
+        email: updated.email,
+        password: "password123",
+        options: {
+          data: {
+            full_name: updated.full_name,
+            role: updated.role,
+          },
+        },
+      }).then(({ data, error }) => {
+        if (error) console.warn("Supabase Auth sync notice:", error.message);
+        else console.log("User synced to Supabase Auth:", updated.email);
+      });
+    }
+
     return updated;
   }
 
@@ -545,6 +582,31 @@ export class DataStore {
       books.unshift(saved);
     }
     this.set(STORAGE_KEYS.BOOKS, books);
+
+    if (supabase) {
+      supabase
+        .from("books")
+        .upsert({
+          id: saved.id,
+          isbn: saved.isbn,
+          title: saved.title,
+          author: saved.author,
+          category: saved.category,
+          publisher: saved.publisher,
+          edition: saved.edition,
+          total_copies: saved.total_copies,
+          available_copies: saved.available_copies,
+          shelf_location: saved.shelf_location,
+          cover_image_url: saved.cover_image_url,
+          description: saved.description,
+          featured: saved.featured,
+        })
+        .then(({ error }) => {
+          if (error) console.error("Supabase book sync error:", error.message);
+          else console.log("Book successfully saved to Supabase DB:", saved.title);
+        });
+    }
+
     return saved;
   }
 
@@ -744,6 +806,23 @@ export class DataStore {
     list.unshift(newAudit);
     this.set(STORAGE_KEYS.AUDITS, list);
     return newAudit;
+  }
+
+  static async syncFromSupabase(): Promise<void> {
+    if (!supabase) return;
+    try {
+      const { data: dbProfiles, error: errProf } = await supabase.from("profiles").select("*");
+      if (!errProf && dbProfiles && dbProfiles.length > 0) {
+        this.set(STORAGE_KEYS.PROFILES, dbProfiles as UserProfile[]);
+      }
+
+      const { data: dbBooks, error: errBooks } = await supabase.from("books").select("*");
+      if (!errBooks && dbBooks && dbBooks.length > 0) {
+        this.set(STORAGE_KEYS.BOOKS, dbBooks as Book[]);
+      }
+    } catch (err) {
+      console.warn("Supabase fetch notice:", err);
+    }
   }
 
   static resetAllData(): void {

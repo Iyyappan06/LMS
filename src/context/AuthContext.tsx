@@ -38,6 +38,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Sync from Supabase DB on mount
+    DataStore.syncFromSupabase().then(() => {
+      setAllProfiles(DataStore.getProfiles());
+    });
+
     // Initial session load
     const storedUserId = typeof window !== "undefined" ? localStorage.getItem("lms_user_id") : null;
     const profiles = DataStore.getProfiles();
