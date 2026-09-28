@@ -523,6 +523,20 @@ export class DataStore {
     return updated;
   }
 
+  static deleteProfile(id: string): void {
+    const profiles = this.getProfiles().filter((p) => p.id !== id);
+    this.set(STORAGE_KEYS.PROFILES, profiles);
+    if (supabase) {
+      supabase
+        .from("profiles")
+        .delete()
+        .eq("id", id)
+        .then(({ error }) => {
+          if (error) console.error("Supabase profile delete error:", error.message);
+        });
+    }
+  }
+
   // Module 2 & 4: Book Catalog CRUD & Search
   static getBooks(): Book[] {
     return this.get<Book[]>(STORAGE_KEYS.BOOKS, INITIAL_BOOKS);
