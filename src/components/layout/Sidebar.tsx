@@ -76,7 +76,7 @@ export function Sidebar() {
           label: "Department Resources",
           href: "/department",
           icon: GraduationCap,
-          show: isCoordinator || isAdmin || isLibrarian || isFaculty,
+          show: isCoordinator || isAdmin || isLibrarian,
         },
       ],
     },
