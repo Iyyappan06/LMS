@@ -40,7 +40,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Sync from Supabase DB on mount
     DataStore.syncFromSupabase().then(() => {
-      setAllProfiles(DataStore.getProfiles());
+      const updatedProfiles = DataStore.getProfiles();
+      setAllProfiles(updatedProfiles);
+      const storedUserId = typeof window !== "undefined" ? localStorage.getItem("lms_user_id") : null;
+      if (storedUserId) {
+        const found = updatedProfiles.find((p) => p.id === storedUserId);
+        if (found) setCurrentUserState(found);
+      } else {
+        const adminUser = updatedProfiles.find((p) => p.role === "ADMIN") || updatedProfiles[0];
+        setCurrentUserState(adminUser);
+      }
     });
 
     // Initial session load

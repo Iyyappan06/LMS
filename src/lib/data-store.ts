@@ -428,7 +428,12 @@ export class DataStore {
 
   // Module 1: Auth / Active Role
   static getCurrentUser(): UserProfile {
-    return this.get<UserProfile>(STORAGE_KEYS.CURRENT_USER, INITIAL_PROFILES[0]);
+    const user = this.get<UserProfile>(STORAGE_KEYS.CURRENT_USER, INITIAL_PROFILES[0]);
+    if (user && (user.email === "admin@lms.com" || user.id === "11111111-1111-1111-1111-111111111111" || user.role === "ADMIN") && user.full_name !== "Vijay") {
+      user.full_name = "Vijay";
+      this.setCurrentUser(user);
+    }
+    return user;
   }
 
   static setCurrentUser(user: UserProfile): void {
@@ -444,7 +449,18 @@ export class DataStore {
 
   // Module 3: Student & Faculty Profiles
   static getProfiles(): UserProfile[] {
-    return this.get<UserProfile[]>(STORAGE_KEYS.PROFILES, INITIAL_PROFILES);
+    const profiles = this.get<UserProfile[]>(STORAGE_KEYS.PROFILES, INITIAL_PROFILES);
+    let updated = false;
+    profiles.forEach((p) => {
+      if ((p.email === "admin@lms.com" || p.id === "11111111-1111-1111-1111-111111111111") && p.full_name !== "Vijay") {
+        p.full_name = "Vijay";
+        updated = true;
+      }
+    });
+    if (updated) {
+      this.set(STORAGE_KEYS.PROFILES, profiles);
+    }
+    return profiles;
   }
 
   static saveProfile(profile: Partial<UserProfile> & { full_name: string; email: string; role: UserRole }): UserProfile {
@@ -825,9 +841,14 @@ export class DataStore {
   static async syncFromSupabase(): Promise<void> {
     if (!supabase) return;
     try {
+      await supabase.from("profiles").update({ full_name: "Vijay" }).eq("id", "11111111-1111-1111-1111-111111111111");
+
       const { data: dbProfiles, error: errProf } = await supabase.from("profiles").select("*");
       if (!errProf && dbProfiles && dbProfiles.length > 0) {
-        this.set(STORAGE_KEYS.PROFILES, dbProfiles as UserProfile[]);
+        const sanitized = (dbProfiles as UserProfile[]).map((p) =>
+          (p.email === "admin@lms.com" || p.id === "11111111-1111-1111-1111-111111111111") ? { ...p, full_name: "Vijay" } : p
+        );
+        this.set(STORAGE_KEYS.PROFILES, sanitized);
       }
 
       const { data: dbBooks, error: errBooks } = await supabase.from("books").select("*");
