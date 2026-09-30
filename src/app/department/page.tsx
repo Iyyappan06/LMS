@@ -21,10 +21,12 @@ export default function DepartmentResourcesPage() {
   const [deptFilter, setDeptFilter] = useState("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const coordinatorDept = currentUser?.department || "Computer Science & Engineering";
+
   const [formData, setFormData] = useState({
     course_code: "",
     course_name: "",
-    department: currentUser?.department || "Computer Science & Engineering",
+    department: isCoordinator ? coordinatorDept : "Computer Science & Engineering",
     coordinator_name: currentUser?.full_name || "Course Coordinator",
     book_title: "",
     author: "",
@@ -54,12 +56,15 @@ export default function DepartmentResourcesPage() {
       return;
     }
 
-    DataStore.saveReading(formData);
+    DataStore.saveReading({
+      ...formData,
+      department: isCoordinator ? coordinatorDept : formData.department,
+    });
     setIsModalOpen(false);
     setFormData({
       course_code: "",
       course_name: "",
-      department: currentUser?.department || "Computer Science & Engineering",
+      department: isCoordinator ? coordinatorDept : "Computer Science & Engineering",
       coordinator_name: currentUser?.full_name || "Course Coordinator",
       book_title: "",
       author: "",
@@ -73,41 +78,64 @@ export default function DepartmentResourcesPage() {
     loadData();
   };
 
-  const filteredReadings = readings.filter((r) => {
+  // Scope readings to coordinator's department if coordinator role is active
+  const scopedReadings = isCoordinator
+    ? readings.filter((r) => r.department?.toLowerCase() === coordinatorDept.toLowerCase())
+    : readings;
+
+  const filteredReadings = scopedReadings.filter((r) => {
     const matchesSearch =
       r.course_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.course_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.book_title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDept = deptFilter === "ALL" || r.department === deptFilter;
+    const matchesDept = isCoordinator || deptFilter === "ALL" || r.department === deptFilter;
     return matchesSearch && matchesDept;
   });
 
   return (
     <div className="space-y-5">
+      {/* Department Scope Banner for Coordinator */}
+      {isCoordinator && (
+        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-4 rounded-lg shadow-md flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-blue-700/50 rounded-lg border border-blue-400/30">
+              <GraduationCap className="w-6 h-6 text-blue-200" />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wider text-blue-200 font-bold">Department Resources</p>
+              <h1 className="text-lg font-bold">{coordinatorDept} Course Readings</h1>
+            </div>
+          </div>
+          <span className="px-3 py-1 bg-blue-800/80 text-blue-100 text-xs font-semibold rounded-full border border-blue-600/40">
+            {coordinatorDept} Scope
+          </span>
+        </div>
+      )}
+
       {/* 4 Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
-          <p className="text-3xl font-extrabold text-slate-900">{readings.length}</p>
+          <p className="text-3xl font-extrabold text-slate-900">{scopedReadings.length}</p>
           <p className="text-xs text-slate-500 font-semibold mt-1">Recommended Texts</p>
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
           <p className="text-3xl font-extrabold text-blue-600">
-            {readings.filter((r) => r.is_mandatory).length}
+            {scopedReadings.filter((r) => r.is_mandatory).length}
           </p>
           <p className="text-xs text-slate-500 font-semibold mt-1">Mandatory Texts</p>
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
           <p className="text-3xl font-extrabold text-emerald-600">
-            {readings.filter((r) => r.status === "AVAILABLE").length}
+            {scopedReadings.filter((r) => r.status === "AVAILABLE").length}
           </p>
           <p className="text-xs text-slate-500 font-semibold mt-1">In Stock</p>
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
           <p className="text-3xl font-extrabold text-slate-900">
-            {readings.reduce((acc, r) => acc + r.required_copies, 0)}
+            {scopedReadings.reduce((acc, r) => acc + r.required_copies, 0)}
           </p>
           <p className="text-xs text-slate-500 font-semibold mt-1">Total Copies Required</p>
         </div>
@@ -124,15 +152,17 @@ export default function DepartmentResourcesPage() {
             className="flex-1 px-3 py-2 rounded border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-blue-600 bg-white"
           />
 
-          <select
-            value={deptFilter}
-            onChange={(e) => setDeptFilter(e.target.value)}
-            className="px-3 py-2 rounded border border-slate-300 text-slate-700 text-xs focus:outline-none focus:border-blue-600 bg-white"
-          >
-            <option value="ALL">All Departments</option>
-            <option value="Computer Science & Engineering">Computer Science & Engineering</option>
-            <option value="Electrical Engineering">Electrical Engineering</option>
-          </select>
+          {!isCoordinator && (
+            <select
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
+              className="px-3 py-2 rounded border border-slate-300 text-slate-700 text-xs focus:outline-none focus:border-blue-600 bg-white"
+            >
+              <option value="ALL">All Departments</option>
+              <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+              <option value="Electrical Engineering">Electrical Engineering</option>
+            </select>
+          )}
         </div>
 
         {(isCoordinator || isAdmin || isLibrarian) && (
@@ -180,7 +210,7 @@ export default function DepartmentResourcesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
           <div className="bg-white w-full max-w-md p-6 rounded-lg border border-slate-200 shadow-xl space-y-4">
             <h3 className="text-lg font-bold text-slate-900 border-b pb-2">
-              Propose Course Reading
+              Propose Course Reading ({isCoordinator ? coordinatorDept : "Department"})
             </h3>
 
             <form onSubmit={handleCreateSubmit} className="space-y-3 text-xs">
