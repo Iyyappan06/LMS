@@ -15,7 +15,7 @@ export const INITIAL_REQUESTS: BookRequest[] = [
   {
     id: "req-001",
     faculty_id: "33333333-3333-3333-3333-333333333333",
-    faculty_name: "Prof. Robert Thorne",
+    faculty_name: "Prof. Kanishkkan",
     faculty_email: "faculty@lms.com",
     title: "Designing Data-Intensive Applications",
     author: "Martin Kleppmann",
@@ -31,7 +31,7 @@ export const INITIAL_REQUESTS: BookRequest[] = [
   {
     id: "req-002",
     faculty_id: "33333333-3333-3333-3333-333333333333",
-    faculty_name: "Prof. Robert Thorne",
+    faculty_name: "Prof. Kanishkkan",
     faculty_email: "faculty@lms.com",
     title: "Quantum Computing: An Applied Approach",
     author: "Jack D. Hidary",
@@ -53,7 +53,7 @@ export const INITIAL_READINGS: CourseReading[] = [
     course_code: "CS302",
     course_name: "Database Management Systems",
     department: "Computer Science & Engineering",
-    coordinator_name: "Dr. Maya Patel",
+    coordinator_name: "Dr. Adhikesavan - Dept Coordinator",
     book_title: "Database System Concepts (7th Edition)",
     author: "Abraham Silberschatz",
     isbn: "978-0078022159",
@@ -69,7 +69,7 @@ export const INITIAL_READINGS: CourseReading[] = [
     course_code: "EE201",
     course_name: "Digital Circuits & Systems",
     department: "Electrical Engineering",
-    coordinator_name: "Dr. Maya Patel",
+    coordinator_name: "Dr. Adhikesavan - Dept Coordinator",
     book_title: "Digital Design: With an Introduction to the Verilog HDL",
     author: "M. Morris Mano",
     isbn: "978-0132774208",
@@ -87,8 +87,8 @@ export const INITIAL_FINES: FineRecord[] = [
     id: "fn-501",
     borrow_id: "b-003",
     user_id: "44444444-4444-4444-4444-444444444444",
-    user_name: "Alex Rivera",
-    user_email: "student@lms.com",
+    user_name: "Iyyappan",
+    user_email: "iyyappan06012007@gmail.com",
     book_title: "Design Patterns: Elements of Reusable Object-Oriented Software",
     amount: 14.5,
     reason: "Late return (29 days overdue)",
@@ -145,7 +145,7 @@ export const INITIAL_PROFILES: UserProfile[] = [
     email: "admin@lms.com",
     full_name: "Vijay",
     role: "ADMIN",
-    department: "Library Administration",
+    department: "Administration",
     max_books_allowed: 99,
     phone: "+1-555-0101",
     status: "ACTIVE",
@@ -154,9 +154,9 @@ export const INITIAL_PROFILES: UserProfile[] = [
   {
     id: "22222222-2222-2222-2222-222222222222",
     email: "librarian@lms.com",
-    full_name: "Sarah Jenkins",
+    full_name: "HariKumar - Chief Librarian",
     role: "LIBRARIAN",
-    department: "Circulation Services",
+    department: "Library Services",
     max_books_allowed: 99,
     phone: "+1-555-0102",
     status: "ACTIVE",
@@ -165,7 +165,7 @@ export const INITIAL_PROFILES: UserProfile[] = [
   {
     id: "33333333-3333-3333-3333-333333333333",
     email: "faculty@lms.com",
-    full_name: "Prof. Robert Thorne",
+    full_name: "Prof. Kanishkkan",
     role: "FACULTY",
     department: "Computer Science & Engineering",
     max_books_allowed: 5,
@@ -175,8 +175,8 @@ export const INITIAL_PROFILES: UserProfile[] = [
   },
   {
     id: "44444444-4444-4444-4444-444444444444",
-    email: "student@lms.com",
-    full_name: "Alex Rivera",
+    email: "iyyappan06012007@gmail.com",
+    full_name: "Iyyappan",
     role: "STUDENT",
     department: "Computer Science & Engineering",
     max_books_allowed: 3,
@@ -187,22 +187,11 @@ export const INITIAL_PROFILES: UserProfile[] = [
   {
     id: "55555555-5555-5555-5555-555555555555",
     email: "coordinator@lms.com",
-    full_name: "Dr. Maya Patel",
+    full_name: "Dr. Adhikesavan - Dept Coordinator",
     role: "COORDINATOR",
     department: "Computer Science & Engineering",
     max_books_allowed: 5,
     phone: "+1-555-0105",
-    status: "ACTIVE",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "66666666-6666-6666-6666-666666666666",
-    email: "emma.watson@student.lms.com",
-    full_name: "Emma Watson",
-    role: "STUDENT",
-    department: "Electrical Engineering",
-    max_books_allowed: 3,
-    phone: "+1-555-0106",
     status: "ACTIVE",
     created_at: new Date().toISOString(),
   },
@@ -429,9 +418,26 @@ export class DataStore {
   // Module 1: Auth / Active Role
   static getCurrentUser(): UserProfile {
     const user = this.get<UserProfile>(STORAGE_KEYS.CURRENT_USER, INITIAL_PROFILES[0]);
-    if (user && (user.email === "admin@lms.com" || user.id === "11111111-1111-1111-1111-111111111111" || user.role === "ADMIN") && user.full_name !== "Vijay") {
-      user.full_name = "Vijay";
-      this.setCurrentUser(user);
+    if (user) {
+      if ((user.id === "11111111-1111-1111-1111-111111111111" || user.role === "ADMIN") && user.full_name !== "Vijay") {
+        user.full_name = "Vijay";
+        user.department = "Administration";
+        this.setCurrentUser(user);
+      } else if ((user.id === "22222222-2222-2222-2222-222222222222" || user.role === "LIBRARIAN") && user.full_name !== "HariKumar - Chief Librarian") {
+        user.full_name = "HariKumar - Chief Librarian";
+        user.department = "Library Services";
+        this.setCurrentUser(user);
+      } else if ((user.id === "33333333-3333-3333-3333-333333333333" || user.role === "FACULTY") && user.full_name !== "Prof. Kanishkkan") {
+        user.full_name = "Prof. Kanishkkan";
+        this.setCurrentUser(user);
+      } else if (user.id === "44444444-4444-4444-4444-444444444444" && (user.full_name !== "Iyyappan" || user.email !== "iyyappan06012007@gmail.com")) {
+        user.full_name = "Iyyappan";
+        user.email = "iyyappan06012007@gmail.com";
+        this.setCurrentUser(user);
+      } else if ((user.id === "55555555-5555-5555-5555-555555555555" || user.role === "COORDINATOR") && user.full_name !== "Dr. Adhikesavan - Dept Coordinator") {
+        user.full_name = "Dr. Adhikesavan - Dept Coordinator";
+        this.setCurrentUser(user);
+      }
     }
     return user;
   }
@@ -451,12 +457,34 @@ export class DataStore {
   static getProfiles(): UserProfile[] {
     const profiles = this.get<UserProfile[]>(STORAGE_KEYS.PROFILES, INITIAL_PROFILES);
     let updated = false;
+
+    // Direct mapping to ensure exact matches with member directory
+    const targetMap: Record<string, { full_name: string; email?: string; department?: string }> = {
+      "11111111-1111-1111-1111-111111111111": { full_name: "Vijay", department: "Administration" },
+      "22222222-2222-2222-2222-222222222222": { full_name: "HariKumar - Chief Librarian", department: "Library Services" },
+      "33333333-3333-3333-3333-333333333333": { full_name: "Prof. Kanishkkan" },
+      "44444444-4444-4444-4444-444444444444": { full_name: "Iyyappan", email: "iyyappan06012007@gmail.com" },
+      "55555555-5555-5555-5555-555555555555": { full_name: "Dr. Adhikesavan - Dept Coordinator" },
+    };
+
     profiles.forEach((p) => {
-      if ((p.email === "admin@lms.com" || p.id === "11111111-1111-1111-1111-111111111111") && p.full_name !== "Vijay") {
-        p.full_name = "Vijay";
-        updated = true;
+      const target = targetMap[p.id];
+      if (target) {
+        if (p.full_name !== target.full_name) {
+          p.full_name = target.full_name;
+          updated = true;
+        }
+        if (target.email && p.email !== target.email) {
+          p.email = target.email;
+          updated = true;
+        }
+        if (target.department && p.department !== target.department) {
+          p.department = target.department;
+          updated = true;
+        }
       }
     });
+
     if (updated) {
       this.set(STORAGE_KEYS.PROFILES, profiles);
     }
@@ -841,13 +869,22 @@ export class DataStore {
   static async syncFromSupabase(): Promise<void> {
     if (!supabase) return;
     try {
-      await supabase.from("profiles").update({ full_name: "Vijay" }).eq("id", "11111111-1111-1111-1111-111111111111");
+      await supabase.from("profiles").update({ full_name: "Vijay", department: "Administration" }).eq("id", "11111111-1111-1111-1111-111111111111");
+      await supabase.from("profiles").update({ full_name: "HariKumar - Chief Librarian", department: "Library Services" }).eq("id", "22222222-2222-2222-2222-222222222222");
+      await supabase.from("profiles").update({ full_name: "Prof. Kanishkkan" }).eq("id", "33333333-3333-3333-3333-333333333333");
+      await supabase.from("profiles").update({ full_name: "Iyyappan", email: "iyyappan06012007@gmail.com" }).eq("id", "44444444-4444-4444-4444-444444444444");
+      await supabase.from("profiles").update({ full_name: "Dr. Adhikesavan - Dept Coordinator" }).eq("id", "55555555-5555-5555-5555-555555555555");
 
       const { data: dbProfiles, error: errProf } = await supabase.from("profiles").select("*");
       if (!errProf && dbProfiles && dbProfiles.length > 0) {
-        const sanitized = (dbProfiles as UserProfile[]).map((p) =>
-          (p.email === "admin@lms.com" || p.id === "11111111-1111-1111-1111-111111111111") ? { ...p, full_name: "Vijay" } : p
-        );
+        const sanitized = (dbProfiles as UserProfile[]).map((p) => {
+          if (p.id === "11111111-1111-1111-1111-111111111111") return { ...p, full_name: "Vijay", department: "Administration" };
+          if (p.id === "22222222-2222-2222-2222-222222222222") return { ...p, full_name: "HariKumar - Chief Librarian", department: "Library Services" };
+          if (p.id === "33333333-3333-3333-3333-333333333333") return { ...p, full_name: "Prof. Kanishkkan" };
+          if (p.id === "44444444-4444-4444-4444-444444444444") return { ...p, full_name: "Iyyappan", email: "iyyappan06012007@gmail.com" };
+          if (p.id === "55555555-5555-5555-5555-555555555555") return { ...p, full_name: "Dr. Adhikesavan - Dept Coordinator" };
+          return p;
+        });
         this.set(STORAGE_KEYS.PROFILES, sanitized);
       }
 

@@ -5,12 +5,11 @@
 
 -- 1. SEED PROFILES
 INSERT INTO profiles (id, email, full_name, role, department, max_books_allowed, phone, status) VALUES
-('11111111-1111-1111-1111-111111111111', 'admin@lms.com', 'Vijay (Admin)', 'ADMIN', 'Administration', 99, '+91-9876543210', 'ACTIVE'),
-('22222222-2222-2222-2222-222222222222', 'librarian@lms.com', 'Sarah Jenkins (Chief Librarian)', 'LIBRARIAN', 'Library Services', 99, '+91-9876543211', 'ACTIVE'),
-('33333333-3333-3333-3333-333333333333', 'faculty@lms.com', 'Prof. Robert Thorne', 'FACULTY', 'Computer Science & Engineering', 5, '+91-9876543212', 'ACTIVE'),
-('44444444-4444-4444-4444-444444444444', 'student@lms.com', 'Alex Rivera', 'STUDENT', 'Computer Science & Engineering', 3, '+91-9876543213', 'ACTIVE'),
-('55555555-5555-5555-5555-555555555555', 'coordinator@lms.com', 'Dr. Maya Patel (Dept Coordinator)', 'COORDINATOR', 'Computer Science & Engineering', 5, '+91-9876543214', 'ACTIVE'),
-('66666666-6666-6666-6666-666666666666', 'emma.watson@student.lms.com', 'Emma Watson', 'STUDENT', 'Electrical Engineering', 3, '+91-9876543215', 'ACTIVE')
+('11111111-1111-1111-1111-111111111111', 'admin@lms.com', 'Vijay', 'ADMIN', 'Administration', 99, '+91-9876543210', 'ACTIVE'),
+('22222222-2222-2222-2222-222222222222', 'librarian@lms.com', 'HariKumar - Chief Librarian', 'LIBRARIAN', 'Library Services', 99, '+91-9876543211', 'ACTIVE'),
+('33333333-3333-3333-3333-333333333333', 'faculty@lms.com', 'Prof. Kanishkkan', 'FACULTY', 'Computer Science & Engineering', 5, '+91-9876543212', 'ACTIVE'),
+('44444444-4444-4444-4444-444444444444', 'iyyappan06012007@gmail.com', 'Iyyappan', 'STUDENT', 'Computer Science & Engineering', 3, '+91-9876543213', 'ACTIVE'),
+('55555555-5555-5555-5555-555555555555', 'coordinator@lms.com', 'Dr. Adhikesavan - Dept Coordinator', 'COORDINATOR', 'Computer Science & Engineering', 5, '+91-9876543214', 'ACTIVE')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. SEED BOOKS
