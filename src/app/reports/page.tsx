@@ -178,7 +178,10 @@ export default function ReportsAnalyticsPage() {
           </h3>
 
           <div className="grid grid-cols-2 gap-3">
-            {(["STUDENT", "FACULTY", "LIBRARIAN", "ADMIN", "COORDINATOR"] as const).map((role) => {
+            {(isCoordinator
+              ? (["STUDENT", "FACULTY", "COORDINATOR"] as const)
+              : (["STUDENT", "FACULTY", "LIBRARIAN", "ADMIN", "COORDINATOR"] as const)
+            ).map((role) => {
               const count = displayMembers.filter((m) => m.role === role).length;
               return (
                 <div key={role} className="p-3 rounded bg-slate-50 border border-slate-200">
