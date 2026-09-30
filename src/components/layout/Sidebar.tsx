@@ -93,7 +93,7 @@ export function Sidebar() {
           label: "Fine & Overdues",
           href: "/fines",
           icon: DollarSign,
-          show: true,
+          show: isAdmin || isLibrarian,
         },
         {
           label: "Reports & Analytics",
