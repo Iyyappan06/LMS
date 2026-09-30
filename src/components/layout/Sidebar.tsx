@@ -81,7 +81,13 @@ export function Sidebar() {
       ],
     },
     {
-      title: isAdmin ? "ADMIN & SYSTEM" : isLibrarian ? "LIBRARIAN MANAGEMENT" : "ADMIN & SYSTEM",
+      title: isAdmin
+        ? "ADMIN & SYSTEM"
+        : isLibrarian
+        ? "LIBRARIAN MANAGEMENT"
+        : isCoordinator
+        ? "DEPARTMENT REPORTS"
+        : "ADMIN & SYSTEM",
       items: [
         {
           label: "Member Directory",
@@ -96,7 +102,7 @@ export function Sidebar() {
           show: isAdmin || isLibrarian,
         },
         {
-          label: "Reports & Analytics",
+          label: isCoordinator ? "Department Analytics & Reports" : "Reports & Analytics",
           href: "/reports",
           icon: BarChart3,
           show: isAdmin || isCoordinator,

@@ -3,12 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { DataStore } from "@/lib/data-store";
 import { Book, BorrowRecord, UserProfile } from "@/lib/types";
-import { Download, Printer, BarChart3, PieChart, Users, BookOpen } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Download, Printer, BarChart3, PieChart, Users, BookOpen, GraduationCap } from "lucide-react";
 
 export default function ReportsAnalyticsPage() {
+  const { currentUser, isCoordinator } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
   const [borrows, setBorrows] = useState<BorrowRecord[]>([]);
   const [members, setMembers] = useState<UserProfile[]>([]);
+
+  const deptFilter = isCoordinator ? currentUser?.department || "Computer Science & Engineering" : null;
 
   useEffect(() => {
     setBooks(DataStore.getBooks());
@@ -16,9 +20,17 @@ export default function ReportsAnalyticsPage() {
     setMembers(DataStore.getProfiles());
   }, []);
 
+  const displayMembers = deptFilter
+    ? members.filter((m) => m.department?.toLowerCase() === deptFilter.toLowerCase())
+    : members;
+
+  const displayBorrows = deptFilter
+    ? borrows.filter((b) => b.user?.department?.toLowerCase() === deptFilter.toLowerCase())
+    : borrows;
+
   const totalCopies = books.reduce((acc, b) => acc + b.total_copies, 0);
   const availableCopies = books.reduce((acc, b) => acc + b.available_copies, 0);
-  const activeBorrows = borrows.filter((b) => b.status === "ACTIVE").length;
+  const activeBorrows = displayBorrows.filter((b) => b.status === "ACTIVE").length;
 
   const categoriesMap: Record<string, number> = {};
   books.forEach((b) => {
@@ -32,10 +44,11 @@ export default function ReportsAnalyticsPage() {
   }));
 
   const exportCirculationCSV = () => {
-    const headers = ["Loan ID", "User Name", "User Role", "Book Title", "Issue Date", "Due Date", "Status"];
-    const rows = borrows.map((b) => [
+    const headers = ["Loan ID", "User Name", "Department", "User Role", "Book Title", "Issue Date", "Due Date", "Status"];
+    const rows = displayBorrows.map((b) => [
       b.id,
       `"${b.user?.full_name || 'Member'}"`,
+      `"${b.user?.department || deptFilter || 'General'}"`,
       b.user?.role || "STUDENT",
       `"${b.book?.title || 'Book'}"`,
       b.issue_date,
@@ -43,11 +56,15 @@ export default function ReportsAnalyticsPage() {
       b.status,
     ]);
 
+    const filename = deptFilter
+      ? `LMS_${deptFilter.replace(/[^a-zA-Z0-9]/g, "_")}_Department_Report_${new Date().toISOString().split("T")[0]}.csv`
+      : `LMS_Circulation_Report_${new Date().toISOString().split("T")[0]}.csv`;
+
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `LMS_Circulation_Report_${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -55,6 +72,24 @@ export default function ReportsAnalyticsPage() {
 
   return (
     <div className="space-y-5">
+      {/* Department Scope Banner for Coordinator */}
+      {isCoordinator && deptFilter && (
+        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-4 rounded-lg shadow-md flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-blue-700/50 rounded-lg border border-blue-400/30">
+              <GraduationCap className="w-6 h-6 text-blue-200" />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wider text-blue-200 font-bold">Department Scope</p>
+              <h1 className="text-lg font-bold">{deptFilter} Reports & Analytics</h1>
+            </div>
+          </div>
+          <span className="px-3 py-1 bg-blue-800/80 text-blue-100 text-xs font-semibold rounded-full border border-blue-600/40">
+            Coordinator Report
+          </span>
+        </div>
+      )}
+
       {/* 4 Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
@@ -71,18 +106,29 @@ export default function ReportsAnalyticsPage() {
 
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
           <p className="text-3xl font-extrabold text-amber-600">{activeBorrows}</p>
-          <p className="text-xs text-slate-500 font-semibold mt-1">Active Loan Count</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">
+            {isCoordinator ? "Active Dept Loans" : "Active Loan Count"}
+          </p>
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm">
-          <p className="text-3xl font-extrabold text-slate-900">{members.length}</p>
-          <p className="text-xs text-slate-500 font-semibold mt-1">Registered Members</p>
+          <p className="text-3xl font-extrabold text-slate-900">{displayMembers.length}</p>
+          <p className="text-xs text-slate-500 font-semibold mt-1">
+            {isCoordinator ? "Dept Members Registered" : "Registered Members"}
+          </p>
         </div>
       </div>
 
       {/* Action Buttons Header */}
       <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-center justify-between">
-        <h2 className="text-sm font-bold text-slate-900">Reports & Export Options</h2>
+        <div>
+          <h2 className="text-sm font-bold text-slate-900">
+            {isCoordinator ? `${deptFilter} - Export Department Report` : "Reports & Export Options"}
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {isCoordinator ? "Generate and download circulation records for your department" : "Export full system circulation and member metrics"}
+          </p>
+        </div>
 
         <div className="flex items-center gap-2">
           <button
@@ -127,11 +173,13 @@ export default function ReportsAnalyticsPage() {
 
         {/* Member Role Breakdown */}
         <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
-          <h3 className="text-sm font-bold text-slate-900">User Roles Breakdown</h3>
+          <h3 className="text-sm font-bold text-slate-900">
+            {isCoordinator ? `${deptFilter} Member Roles` : "User Roles Breakdown"}
+          </h3>
 
           <div className="grid grid-cols-2 gap-3">
             {(["STUDENT", "FACULTY", "LIBRARIAN", "ADMIN", "COORDINATOR"] as const).map((role) => {
-              const count = members.filter((m) => m.role === role).length;
+              const count = displayMembers.filter((m) => m.role === role).length;
               return (
                 <div key={role} className="p-3 rounded bg-slate-50 border border-slate-200">
                   <p className="text-xs text-slate-500 font-semibold">{role}</p>
