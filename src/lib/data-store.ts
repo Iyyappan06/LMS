@@ -789,7 +789,20 @@ export class DataStore {
 
   // Module 8: Requests
   static getRequests(): BookRequest[] {
-    return this.get<BookRequest[]>(STORAGE_KEYS.REQUESTS, INITIAL_REQUESTS);
+    const list = this.get<BookRequest[]>(STORAGE_KEYS.REQUESTS, INITIAL_REQUESTS);
+    let updated = false;
+    list.forEach((r) => {
+      if (r.faculty_id === "33333333-3333-3333-3333-333333333333" || r.faculty_name === "Prof. Robert Thorne") {
+        if (r.faculty_name !== "Prof. Kanishkkan") {
+          r.faculty_name = "Prof. Kanishkkan";
+          updated = true;
+        }
+      }
+    });
+    if (updated) {
+      this.set(STORAGE_KEYS.REQUESTS, list);
+    }
+    return list;
   }
 
   static saveRequest(req: Omit<BookRequest, "id" | "requested_at" | "status">): BookRequest {
@@ -817,7 +830,18 @@ export class DataStore {
 
   // Module 9: Course Readings
   static getReadings(): CourseReading[] {
-    return this.get<CourseReading[]>(STORAGE_KEYS.READINGS, INITIAL_READINGS);
+    const list = this.get<CourseReading[]>(STORAGE_KEYS.READINGS, INITIAL_READINGS);
+    let updated = false;
+    list.forEach((r) => {
+      if (r.coordinator_name.includes("Maya Patel") || r.coordinator_name.includes("Patel")) {
+        r.coordinator_name = "Dr. Adhikesavan - Dept Coordinator";
+        updated = true;
+      }
+    });
+    if (updated) {
+      this.set(STORAGE_KEYS.READINGS, list);
+    }
+    return list;
   }
 
   static saveReading(reading: Omit<CourseReading, "id" | "created_at">): CourseReading {
@@ -834,7 +858,21 @@ export class DataStore {
 
   // Module 11: Fines
   static getFines(): FineRecord[] {
-    return this.get<FineRecord[]>(STORAGE_KEYS.FINES, INITIAL_FINES);
+    const fines = this.get<FineRecord[]>(STORAGE_KEYS.FINES, INITIAL_FINES);
+    let updated = false;
+    fines.forEach((f) => {
+      if (f.user_id === "44444444-4444-4444-4444-444444444444" || f.user_name === "Alex Rivera" || f.user_email === "student@lms.com") {
+        if (f.user_name !== "Iyyappan" || f.user_email !== "iyyappan06012007@gmail.com") {
+          f.user_name = "Iyyappan";
+          f.user_email = "iyyappan06012007@gmail.com";
+          updated = true;
+        }
+      }
+    });
+    if (updated) {
+      this.set(STORAGE_KEYS.FINES, fines);
+    }
+    return fines;
   }
 
   static settleFine(id: string, action: "PAID" | "WAIVED", paymentMethod?: string, waivedBy?: string): void {
@@ -851,7 +889,22 @@ export class DataStore {
 
   // Module 13: Inventory Audits
   static getAudits(): InventoryAudit[] {
-    return this.get<InventoryAudit[]>(STORAGE_KEYS.AUDITS, INITIAL_AUDITS);
+    const list = this.get<InventoryAudit[]>(STORAGE_KEYS.AUDITS, INITIAL_AUDITS);
+    let updated = false;
+    list.forEach((a) => {
+      if (a.audited_by.includes("Sarah Jenkins")) {
+        a.audited_by = "HariKumar - Chief Librarian";
+        updated = true;
+      }
+      if (a.audited_by.includes("Eleanor Vance")) {
+        a.audited_by = "Vijay";
+        updated = true;
+      }
+    });
+    if (updated) {
+      this.set(STORAGE_KEYS.AUDITS, list);
+    }
+    return list;
   }
 
   static saveAudit(audit: Omit<InventoryAudit, "id" | "audited_at">): InventoryAudit {
