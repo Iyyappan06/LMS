@@ -81,13 +81,13 @@ export function Sidebar() {
       ],
     },
     {
-      title: "ADMIN & SYSTEM",
+      title: isAdmin ? "ADMIN & SYSTEM" : isLibrarian ? "LIBRARIAN MANAGEMENT" : "ADMIN & SYSTEM",
       items: [
         {
           label: "Member Directory",
           href: "/members",
           icon: Users,
-          show: canManageMembers,
+          show: isAdmin || isLibrarian,
         },
         {
           label: "Fine & Overdues",
@@ -99,19 +99,19 @@ export function Sidebar() {
           label: "Reports & Analytics",
           href: "/reports",
           icon: BarChart3,
-          show: isAdmin || isLibrarian || isCoordinator,
+          show: isAdmin || isCoordinator,
         },
         {
           label: "Inventory & Audits",
           href: "/inventory",
           icon: ClipboardCheck,
-          show: isAdmin || isLibrarian,
+          show: isAdmin,
         },
         {
           label: "System Settings",
           href: "/settings",
           icon: Settings,
-          show: isAdmin || isLibrarian,
+          show: isAdmin,
         },
       ],
     },
