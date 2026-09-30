@@ -5,7 +5,7 @@
 
 -- 1. SEED PROFILES
 INSERT INTO profiles (id, email, full_name, role, department, max_books_allowed, phone, status) VALUES
-('11111111-1111-1111-1111-111111111111', 'admin@lms.com', 'Dr. Eleanor Vance (Admin)', 'ADMIN', 'Administration', 99, '+91-9876543210', 'ACTIVE'),
+('11111111-1111-1111-1111-111111111111', 'admin@lms.com', 'Vijay (Admin)', 'ADMIN', 'Administration', 99, '+91-9876543210', 'ACTIVE'),
 ('22222222-2222-2222-2222-222222222222', 'librarian@lms.com', 'Sarah Jenkins (Chief Librarian)', 'LIBRARIAN', 'Library Services', 99, '+91-9876543211', 'ACTIVE'),
 ('33333333-3333-3333-3333-333333333333', 'faculty@lms.com', 'Prof. Robert Thorne', 'FACULTY', 'Computer Science & Engineering', 5, '+91-9876543212', 'ACTIVE'),
 ('44444444-4444-4444-4444-444444444444', 'student@lms.com', 'Alex Rivera', 'STUDENT', 'Computer Science & Engineering', 3, '+91-9876543213', 'ACTIVE'),
@@ -48,7 +48,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO fine_records (id, borrow_id, user_id, user_name, user_email, book_title, amount, reason, days_overdue, payment_status, issued_at, paid_at, payment_method, waived_by) VALUES
 ('f1010101-0001-0000-0000-000000000001', 'c1010101-0002-0000-0000-000000000002', '44444444-4444-4444-4444-444444444444', 'Alex Rivera', 'student@lms.com', 'Effective Java', 30.00, 'Overdue return penalty (₹5/day)', 6, 'UNPAID', NOW() - INTERVAL '6 days', NULL, NULL, NULL),
 ('f1010101-0002-0000-0000-000000000002', NULL, '66666666-6666-6666-6666-666666666666', 'Emma Watson', 'emma.watson@student.lms.com', 'Introduction to Algorithms (CLRS)', 55.00, 'Overdue return penalty (₹5/day)', 11, 'PAID', NOW() - INTERVAL '12 days', NOW() - INTERVAL '10 days', 'Credit Card', NULL),
-('f1010101-0003-0000-0000-000000000003', NULL, '33333333-3333-3333-3333-333333333333', 'Prof. Robert Thorne', 'faculty@lms.com', 'Database System Concepts', 15.00, 'Overdue return penalty (₹5/day)', 3, 'WAIVED', NOW() - INTERVAL '20 days', NULL, NULL, 'Dr. Eleanor Vance (Admin)')
+('f1010101-0003-0000-0000-000000000003', NULL, '33333333-3333-3333-3333-333333333333', 'Prof. Robert Thorne', 'faculty@lms.com', 'Database System Concepts', 15.00, 'Overdue return penalty (₹5/day)', 3, 'WAIVED', NOW() - INTERVAL '20 days', NULL, NULL, 'Vijay (Admin)')
 ON CONFLICT (id) DO NOTHING;
 
 -- 7. SEED INVENTORY AUDITS (Module 13: Inventory Management & Condition Audits)

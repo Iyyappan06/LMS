@@ -133,7 +133,7 @@ export const INITIAL_AUDITS: InventoryAudit[] = [
     condition_status: "LOST",
     notes: "Reported missing during annual shelf audit CS-A-105.",
     copies_affected: 1,
-    audited_by: "Dr. Eleanor Vance (Admin)",
+    audited_by: "Vijay (Admin)",
     audited_at: "2026-01-28T11:30:00Z",
   },
 ];
@@ -143,7 +143,7 @@ export const INITIAL_PROFILES: UserProfile[] = [
   {
     id: "11111111-1111-1111-1111-111111111111",
     email: "admin@lms.com",
-    full_name: "Dr. Eleanor Vance",
+    full_name: "Vijay",
     role: "ADMIN",
     department: "Library Administration",
     max_books_allowed: 99,
